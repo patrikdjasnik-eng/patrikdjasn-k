@@ -1056,6 +1056,51 @@ a.tool-row:hover{
   }
 }
 
+
+/* Interactive PowerShell */
+.terminal-wrap{background:#0a0f1b}
+.t-topbar{height:42px;background:#101626;padding:0 .85rem}
+.t-path{text-align:left;padding-left:.55rem;color:#8997b4}
+.t-tabs{gap:.25rem}
+.t-tab{
+  appearance:none;border:0;border-radius:5px;background:transparent;
+  font-family:var(--mono);font-size:.63rem;padding:.38rem .68rem;color:var(--grey);cursor:pointer;
+}
+.t-tab:hover,.t-tab.active{background:#192238;color:var(--amber)}
+.t-guide{
+  display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;
+  padding:.48rem .8rem;border-bottom:1px solid var(--bg4);background:#0d1422;
+  font-family:var(--mono);
+}
+.t-guide-label{font-size:.56rem;letter-spacing:.14em;color:#56627b;margin-right:.15rem}
+.t-guide button{
+  appearance:none;border:1px solid #26334f;border-radius:5px;background:#121b2d;
+  color:#9cabc8;padding:.28rem .5rem;font:500 .6rem var(--mono);cursor:pointer;
+}
+.t-guide button:hover{color:#fff;border-color:#455b86;background:#18233a}
+.t-body{padding:1rem 1.1rem;font-size:.73rem;line-height:1.72}
+.t-input-row{min-height:48px;padding:.55rem .8rem;gap:.45rem;background:#0d1422}
+.t-prompt{flex-shrink:0;font-family:var(--mono);font-size:.68rem;color:#62c6ff;white-space:nowrap}
+.t-input{font-size:.71rem;min-width:80px}
+.t-hint{white-space:nowrap}
+.ps-banner{
+  margin-bottom:.85rem;padding:.8rem .9rem;border:1px solid #202c45;border-radius:6px;
+  background:#0d1422;color:#8e9ab5;font-family:var(--mono);font-size:.68rem;line-height:1.65;
+}
+.ps-banner strong{display:block;color:#f2efe4;margin-bottom:.2rem}
+.ps-banner code{color:var(--amber)}
+.ps-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.68rem}
+.ps-table th{text-align:left;color:#72809e;font-weight:500;padding:.2rem .55rem .4rem 0;border-bottom:1px solid #25324b}
+.ps-table td{padding:.34rem .6rem .34rem 0;color:#cbd5e8;vertical-align:top}
+.ps-table .dir{color:#5ac8fa}
+.ps-success{color:#58d6a2}
+.ps-muted{color:#65718b}
+.ps-warn{color:#f1c35c}
+@media(max-width:560px){
+  .t-guide,.t-hint{display:none}
+  .t-prompt{max-width:52%;overflow:hidden;text-overflow:ellipsis}
+}
+
 </style>
 </head>
 <body>
@@ -1115,22 +1160,29 @@ a.tool-row:hover{
           <div class="t-dot td-r"></div>
           <div class="t-dot td-y"></div>
           <div class="t-dot td-g"></div>
-          <div class="t-path">patrik@rabbithollow: ~/projects</div>
+          <div class="t-path">Windows PowerShell · RabbitHollow workspace</div>
           <div class="t-tabs">
-            <div class="t-tab active" onclick="switchTab('explorer')">explorer</div>
-            <div class="t-tab" onclick="switchTab('git')">git log</div>
-            <div class="t-tab" onclick="switchTab('htop')">htop</div>
+            <button class="t-tab active" type="button" onclick="switchTab('powershell', this)">PowerShell</button>
+            <button class="t-tab" type="button" onclick="switchTab('git', this)">Git</button>
+            <button class="t-tab" type="button" onclick="switchTab('system', this)">System</button>
           </div>
+        </div>
+        <div class="t-guide">
+          <span class="t-guide-label">TRY</span>
+          <button type="button" onclick="runQuickCommand('dir')">dir</button>
+          <button type="button" onclick="runQuickCommand('cd AI-agent')">cd AI-agent</button>
+          <button type="button" onclick="runQuickCommand('type README.md')">type README.md</button>
+          <button type="button" onclick="runQuickCommand('projects')">projects</button>
+          <button type="button" onclick="runQuickCommand('help')">help</button>
         </div>
         <div class="t-body" id="t-body" onclick="focusInput()"></div>
         <div class="t-input-row">
-          <span class="t-ps1-path" id="t-cwd">~/projects</span>
-          <span class="t-ps1-git"> (main)</span>
-          <span class="t-ps1-arr"> ❯</span>
+          <span class="t-prompt" id="t-prompt">PS C:\Users\Patrik\Projects&gt;</span>
           <input class="t-input" id="t-input" autocomplete="off" spellcheck="false"
-            placeholder="type 'help' for commands..."
+            aria-label="PowerShell command"
+            placeholder="Type a command and press Enter"
             onkeydown="handleKey(event)">
-          <span class="t-hint">↑↓ history · tab</span>
+          <span class="t-hint">TAB autocomplete · ↑↓ history</span>
         </div>
       </div>
     </div>
@@ -1489,939 +1541,890 @@ const FS = {
   ]},
 };
 
-// ── TERMINAL STATE ───────────────────────────────────────────────────────────
-let cwd = '~/projects';
+// ── TERMINAL STATE
+const WIN_FS = {
+  'C:\\Users\\Patrik': {
+    type:'dir',
+    children:['Projects','Documents','Desktop','about.md','skills.txt','contact.md']
+  },
+  'C:\\Users\\Patrik\\Projects': {
+    type:'dir',
+    children:['AI-agent','deception-analyzer','RabbitHollow-Knight','REGISTRA','Cipisek','WMS-Lookup','Terminal-Cheatsheet','SAP-ERP-Trainer']
+  },
+  'C:\\Users\\Patrik\\Projects\\AI-agent': {
+    type:'dir',
+    children:['README.md','backend','frontend','start_fast.py','requirements.txt'],
+    meta:{status:'Active development',stack:'Python · FastAPI · local LLM · desktop tools'}
+  },
+  'C:\\Users\\Patrik\\Projects\\deception-analyzer': {
+    type:'dir',
+    children:['README.md','backend','frontend','docs','tests'],
+    meta:{status:'Building',stack:'React · TypeScript · FastAPI · PostgreSQL'}
+  },
+  'C:\\Users\\Patrik\\Projects\\RabbitHollow-Knight': {
+    type:'dir',
+    children:['README.md','index.html','engine.js','game.js','levels.js'],
+    meta:{status:'Live',stack:'JavaScript · Canvas API · HTML5'}
+  },
+  'C:\\Users\\Patrik\\Projects\\REGISTRA': {
+    type:'dir',
+    children:['README.md','app','prisma','docs'],
+    meta:{status:'Prototype',stack:'Next.js · Prisma · PostgreSQL'}
+  },
+  'C:\\Users\\Patrik\\Projects\\Cipisek': {
+    type:'dir',
+    children:['README.md','index.html','agent.js','tools','prompts'],
+    meta:{status:'Development',stack:'Gemini API · PWA · JavaScript'}
+  },
+  'C:\\Users\\Patrik\\Projects\\WMS-Lookup': {
+    type:'dir',
+    children:['README.md','index.html','scanner.js','dashboard.js'],
+    meta:{status:'Live',stack:'PWA · JavaScript'}
+  },
+  'C:\\Users\\Patrik\\Projects\\Terminal-Cheatsheet': {
+    type:'dir',
+    children:['README.md','index.html','commands.js','simulator.js'],
+    meta:{status:'Live',stack:'HTML · JavaScript · offline-first'}
+  },
+  'C:\\Users\\Patrik\\Projects\\SAP-ERP-Trainer': {
+    type:'dir',
+    children:['README.md','index.html','transactions.js','quiz.js'],
+    meta:{status:'Live',stack:'HTML · JavaScript'}
+  },
+  'C:\\Users\\Patrik\\about.md': {
+    type:'file',
+    content:['# Patrik Djasník','','Full-Stack Internal Apps Developer','RabbitHollow · Prague, Czech Republic','','I build internal tools, AI agents, automation and local-first software.']
+  },
+  'C:\\Users\\Patrik\\skills.txt': {
+    type:'file',
+    content:['DEV      TypeScript React JavaScript Python FastAPI','AI       llama.cpp GGUF Ollama Gemini agent architecture','DATA     PostgreSQL Prisma SQLite','SYSTEMS  PWA WebSockets Service Workers Docker Git']
+  },
+  'C:\\Users\\Patrik\\contact.md': {
+    type:'file',
+    content:['Email   patrikdjasnik@gmail.com','GitHub  github.com/patrikdjasnik-eng','City    Prague, CZ','Status  available for freelance work']
+  },
+  'C:\\Users\\Patrik\\Projects\\AI-agent\\README.md': {
+    type:'file',
+    content:['# RabbitHollow AI Agent','','Local-first AI agent runtime for multi-step workflows, tool execution and desktop automation.','','Stack: Python, FastAPI, local LLM, provider routing, approval controls.']
+  },
+  'C:\\Users\\Patrik\\Projects\\deception-analyzer\\README.md': {
+    type:'file',
+    content:['# Deception Analyzer','','Security tooling for deception infrastructure, IOC analysis and controlled AI-assisted investigation.']
+  }
+};
+
+let cwd = 'C:\\Users\\Patrik\\Projects';
 let history = [];
 let histIdx = -1;
-let activeTab = 'explorer';
+let activeTab = 'powershell';
 
 const body = document.getElementById('t-body');
 const input = document.getElementById('t-input');
-const cwdEl = document.getElementById('t-cwd');
+const promptEl = document.getElementById('t-prompt');
 
-function focusInput(){ input.focus() }
+function escHtml(value){
+  return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 
-// initial boot
-window.addEventListener('load', () => {
-  boot();
+function focusInput(){
   input.focus();
-});
+}
 
-function boot(){
-  lines([
-    { t:'comment', v:'# RabbitHollow · patrik@rh v2.6.0' },
-    { t:'comment', v:'# type "help" for commands' },
-    { t:'blank' },
-  ]);
-  runCmd('ls');
+function updatePrompt(){
+  promptEl.textContent = `PS ${cwd}>`;
 }
 
 function lines(arr){
-  arr.forEach(l => {
+  arr.forEach(item => {
     const d = document.createElement('div');
-    if(l.t === 'blank'){ d.className='t-blank'; body.appendChild(d); return; }
-    d.className = 't-line';
-    if(l.t === 'prompt'){
-      d.innerHTML = `<span class="t-ps1-path">${escHtml(cwd)}</span><span class="t-ps1-git"> (main)</span><span class="t-ps1-arr"> ❯ </span><span class="t-in">${escHtml(l.v)}</span>`;
-    } else if(l.t === 'out'){
-      d.innerHTML = `<span class="t-out">${escHtml(l.v)}</span>`;
-    } else if(l.t === 'out-h'){
-      d.innerHTML = `<span class="t-highlight">${escHtml(l.v)}</span>`;
-    } else if(l.t === 'comment'){
-      d.innerHTML = `<span class="t-comment">${escHtml(l.v)}</span>`;
-    } else if(l.t === 'err'){
-      d.innerHTML = `<span class="t-err">${escHtml(l.v)}</span>`;
-    } else if(l.t === 'raw'){
-      d.innerHTML = l.v;
+    if(item.t === 'blank'){
+      d.className='t-blank';
+    } else {
+      d.className='t-line';
+      if(item.t === 'prompt'){
+        d.innerHTML=`<span class="t-ps1-path">${escHtml(item.path)}</span><span class="t-ps1-arr">&gt;</span><span class="t-in">${escHtml(item.v)}</span>`;
+      } else if(item.t === 'out'){
+        d.innerHTML=`<span class="t-out">${escHtml(item.v)}</span>`;
+      } else if(item.t === 'out-h'){
+        d.innerHTML=`<span class="t-highlight">${escHtml(item.v)}</span>`;
+      } else if(item.t === 'comment'){
+        d.innerHTML=`<span class="t-comment">${escHtml(item.v)}</span>`;
+      } else if(item.t === 'err'){
+        d.innerHTML=`<span class="t-err">${escHtml(item.v)}</span>`;
+      } else if(item.t === 'success'){
+        d.innerHTML=`<span class="ps-success">${escHtml(item.v)}</span>`;
+      } else if(item.t === 'raw'){
+        d.innerHTML=item.v;
+      }
     }
     body.appendChild(d);
   });
-  body.scrollTop = body.scrollHeight;
+  body.scrollTop=body.scrollHeight;
 }
 
-function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+function renderPromptLine(command){
+  lines([{t:'prompt',path:`PS ${cwd}`,v:` ${command}`}]);
+}
+
+function bootPowerShell(){
+  body.innerHTML='';
+  const banner=document.createElement('div');
+  banner.className='ps-banner';
+  banner.innerHTML='<strong>RabbitHollow PowerShell portfolio</strong>Use it like a Windows terminal. Try <code>dir</code>, <code>cd AI-agent</code>, <code>type README.md</code>, <code>projects</code> or <code>help</code>.';
+  body.appendChild(banner);
+  lines([{t:'out',v:'Windows PowerShell'},{t:'out',v:'Portfolio simulation · safe commands only'},{t:'blank'}]);
+  renderPromptLine('dir');
+  cmdDir('');
+  updatePrompt();
+}
+
+window.addEventListener('load',bootPowerShell);
+
+function runQuickCommand(command){
+  input.value=command;
+  executeInput();
+}
+
+function executeInput(){
+  const command=input.value.trim();
+  if(!command) return;
+  history.unshift(command);
+  histIdx=-1;
+  renderPromptLine(command);
+  input.value='';
+  runCmd(command);
+}
 
 function handleKey(e){
-  if(e.key === 'Enter'){
-    const cmd = input.value.trim();
-    if(cmd){ history.unshift(cmd); histIdx = -1; }
-    lines([{ t:'prompt', v: cmd }]);
-    input.value = '';
-    runCmd(cmd);
-  } else if(e.key === 'ArrowUp'){
+  if(e.key==='Enter'){
     e.preventDefault();
-    if(histIdx < history.length-1){ histIdx++; input.value = history[histIdx]; }
-  } else if(e.key === 'ArrowDown'){
+    executeInput();
+  } else if(e.key==='ArrowUp'){
     e.preventDefault();
-    if(histIdx > 0){ histIdx--; input.value = history[histIdx]; }
-    else { histIdx = -1; input.value = ''; }
-  } else if(e.key === 'Tab'){
+    if(histIdx<history.length-1){histIdx++;input.value=history[histIdx]}
+  } else if(e.key==='ArrowDown'){
+    e.preventDefault();
+    if(histIdx>0){histIdx--;input.value=history[histIdx]}else{histIdx=-1;input.value=''}
+  } else if(e.key==='Tab'){
     e.preventDefault();
     autocomplete();
+  } else if(e.ctrlKey&&e.key.toLowerCase()==='l'){
+    e.preventDefault();
+    cmdClear();
   }
+}
+
+function normalizePath(raw){
+  if(!raw) return cwd;
+  const value=raw.trim().replace(/^["']|["']$/g,'');
+  if(value==='~') return 'C:\\Users\\Patrik';
+  if(value==='..'){
+    const index=cwd.lastIndexOf('\\');
+    return index>2?cwd.slice(0,index):cwd;
+  }
+  if(/^[A-Za-z]:\\/.test(value)) return value.replace(/\\+$/,'');
+  return (cwd+'\\'+value.replace(/^\.\\/,'')).replace(/\\+$/,'');
+}
+
+function findPath(path){
+  if(WIN_FS[path]) return path;
+  const lower=path.toLowerCase();
+  return Object.keys(WIN_FS).find(key=>key.toLowerCase()===lower)||null;
 }
 
 function autocomplete(){
-  const val = input.value;
-  const parts = val.split(' ');
-  const last = parts[parts.length-1];
-  const dir = FS[cwd];
-  if(!dir || !dir.children) return;
-  const matches = dir.children.filter(c => c.startsWith(last));
-  if(matches.length === 1){
-    parts[parts.length-1] = matches[0];
-    input.value = parts.join(' ');
-  } else if(matches.length > 1){
-    lines([{ t:'out', v: matches.join('  ') }]);
+  const parts=input.value.split(/\s+/);
+  const last=parts.pop()||'';
+  const node=WIN_FS[cwd];
+  if(!node?.children) return;
+  const matches=node.children.filter(name=>name.toLowerCase().startsWith(last.toLowerCase()));
+  if(matches.length===1){
+    parts.push(matches[0]);
+    input.value=parts.join(' ');
+  } else if(matches.length>1){
+    lines([{t:'out',v:matches.join('    ')}]);
   }
-}
-
-function resolvePath(p){
-  if(!p || p === '~') return '~';
-  if(p === '..'){
-    const parts = cwd.split('/');
-    if(parts.length <= 1) return '~';
-    parts.pop();
-    return parts.join('/') || '~';
-  }
-  if(p.startsWith('~')) return p;
-  if(p.startsWith('/')) return '~' + p;
-  return cwd + '/' + p;
 }
 
 function runCmd(raw){
-  if(!raw){ lines([{t:'blank'}]); return; }
-  const parts = raw.trim().split(/\s+/);
-  const cmd = parts[0].toLowerCase();
-  const arg = parts.slice(1).join(' ');
+  const parts=raw.match(/(?:[^\s"]+|"[^"]*")+/g)||[];
+  const command=(parts.shift()||'').toLowerCase();
+  const arg=parts.join(' ').replace(/^"|"$/g,'');
+  const aliases={
+    'ls':'dir','get-childitem':'dir','gci':'dir',
+    'cd':'cd','set-location':'cd','sl':'cd',
+    'cat':'type','get-content':'type','gc':'type',
+    'pwd':'pwd','get-location':'pwd','gl':'pwd',
+    'cls':'clear','clear':'clear','clear-host':'clear',
+    'get-help':'help','?':'help','open':'start'
+  };
+  const cmd=aliases[command]||command;
 
-  switch(cmd){
-    case 'help': cmdHelp(); break;
-    case 'ls': cmdLs(arg); break;
-    case 'cd': cmdCd(arg); break;
-    case 'cat': cmdCat(arg); break;
-    case 'pwd': lines([{t:'out',v:cwd}]); break;
-    case 'tree': cmdTree(arg || cwd, 0); break;
-    case 'clear': body.innerHTML = ''; break;
-    case 'whoami': cmdWhoami(); break;
-    case 'projects': cmdProjects(); break;
-    case 'stack': cmdStack(); break;
-    case 'contact': cmdContact(); break;
-    case 'open': cmdOpen(arg); break;
-    case 'find': cmdFind(arg); break;
-    case 'echo': lines([{t:'out',v:arg}]); break;
-    case 'neofetch': cmdNeofetch(); break;
-    case 'git': cmdGit(parts.slice(1)); break;
-    case '': break;
-    default:
-      lines([{t:'err',v:`command not found: ${raw}. Try 'help'`}]);
-  }
-  lines([{t:'blank'}]);
+  if(cmd==='dir') cmdDir(arg);
+  else if(cmd==='cd') cmdCd(arg);
+  else if(cmd==='type') cmdType(arg);
+  else if(cmd==='pwd') cmdPwd();
+  else if(cmd==='clear') cmdClear();
+  else if(cmd==='help') cmdHelp(arg);
+  else if(cmd==='projects') cmdProjects();
+  else if(cmd==='stack') cmdStack();
+  else if(cmd==='whoami') cmdWhoami();
+  else if(cmd==='contact') cmdContact();
+  else if(cmd==='start') cmdStart(arg);
+  else if(cmd==='git') cmdGit(parts);
+  else if(cmd==='neofetch') cmdSystem();
+  else if(cmd==='echo') lines([{t:'out',v:arg}]);
+  else lines([{t:'err',v:`${command}: The term '${command}' is not recognized as a cmdlet, function, script file, or operable program.`},{t:'comment',v:"Type 'help' to see supported commands."}]);
+
+  if(cmd!=='clear') lines([{t:'blank'}]);
+  updatePrompt();
 }
 
-function cmdHelp(){
+function cmdDir(arg){
+  const requested=arg?normalizePath(arg):cwd;
+  const target=findPath(requested);
+  if(!target||!WIN_FS[target]){
+    lines([{t:'err',v:`Get-ChildItem: Cannot find path '${requested}' because it does not exist.`}]);
+    return;
+  }
+  const node=WIN_FS[target];
+  if(node.type!=='dir'){
+    lines([{t:'out',v:target.split('\\').pop()}]);
+    return;
+  }
+  const rows=(node.children||[]).map(name=>{
+    const childPath=findPath(target+'\\'+name);
+    const child=childPath?WIN_FS[childPath]:null;
+    const isDir=child?.type==='dir';
+    const length=isDir?'':String((name.length*173)+2048);
+    return `<tr><td class="${isDir?'dir':''}">${isDir?'d-----':'-a----'}</td><td>09/23/2026</td><td>16:20</td><td>${length}</td><td class="${isDir?'dir':''}">${escHtml(name)}</td></tr>`;
+  }).join('');
   lines([
-    {t:'out-h',v:'Available commands:'},
-    {t:'out',v:'  ls [dir]      — list directory contents'},
-    {t:'out',v:'  cd <dir>      — change directory'},
-    {t:'out',v:'  cat <file>    — show file contents'},
-    {t:'out',v:'  tree [dir]    — show directory tree'},
-    {t:'out',v:'  pwd           — current path'},
-    {t:'out',v:'  find <name>   — find file or directory'},
-    {t:'out',v:'  open <project>— open live project'},
-    {t:'out',v:'  whoami        — about me'},
-    {t:'out',v:'  projects      — list all projects'},
-    {t:'out',v:'  stack         — tech stack'},
-    {t:'out',v:'  contact       — contact info'},
-    {t:'out',v:'  neofetch      — system info'},
-    {t:'out',v:'  git log       — project history'},
-    {t:'out',v:'  clear         — clear terminal'},
-    {t:'blank'},
-    {t:'comment',v:'# tip: use TAB for autocomplete, ↑↓ for history'},
+    {t:'raw',v:`<div class="ps-muted" style="margin-bottom:.45rem">Directory: ${escHtml(target)}</div>`},
+    {t:'raw',v:`<table class="ps-table"><thead><tr><th>Mode</th><th>LastWriteTime</th><th></th><th>Length</th><th>Name</th></tr></thead><tbody>${rows}</tbody></table>`}
   ]);
-}
-
-function cmdLs(arg){
-  const target = arg ? resolvePath(arg) : cwd;
-  const node = FS[target];
-  if(!node){ lines([{t:'err',v:`ls: cannot access '${arg}': No such file or directory`}]); return; }
-  if(node.type === 'file'){ lines([{t:'out',v:target.split('/').pop()}]); return; }
-  if(!node.children || !node.children.length){ lines([{t:'out',v:'(empty)'}]); return; }
-
-  // render children with colors
-  const items = node.children.map(c => {
-    const fullPath = target + '/' + c;
-    const child = FS[fullPath];
-    const isDir = child && child.type === 'dir';
-    const isExec = c.endsWith('.sh') || c.endsWith('.py');
-    const isLink = child && child.meta && child.meta.url;
-    if(isDir) return `<span class="t-dir">${escHtml(c)}/</span>`;
-    if(isExec) return `<span class="t-exec">${escHtml(c)}</span>`;
-    if(isLink) return `<span class="t-link">${escHtml(c)}</span>`;
-    return `<span class="t-file">${escHtml(c)}</span>`;
-  });
-
-  // show in columns (3 per row)
-  for(let i=0;i<items.length;i+=3){
-    const row = items.slice(i,i+3).map(s=>`<span style="display:inline-block;min-width:220px">${s}</span>`).join('');
-    lines([{t:'raw',v:`<div class="t-line t-out">${row}</div>`}]);
-  }
-
   if(node.meta){
-    lines([{t:'blank'}]);
-    if(node.meta.status) lines([{t:'comment',v:`# status: ${node.meta.status}`}]);
-    if(node.meta.stack)  lines([{t:'comment',v:`# stack:  ${node.meta.stack}`}]);
-    if(node.meta.url)    lines([{t:'comment',v:`# url:    ${node.meta.url}`}]);
-    if(node.meta.tools)  lines([{t:'comment',v:`# tools:  ${node.meta.tools}`}]);
-    if(node.meta.codes)  lines([{t:'comment',v:`# codes:  ${node.meta.codes}`}]);
+    lines([{t:'blank'},{t:'comment',v:`Status: ${node.meta.status}`},{t:'comment',v:`Stack:  ${node.meta.stack}`}]);
   }
 }
 
 function cmdCd(arg){
-  if(!arg || arg==='~'){ cwd='~'; cwdEl.textContent='~'; return; }
-  const target = resolvePath(arg);
-  const node = FS[target];
-  if(!node){ lines([{t:'err',v:`cd: ${arg}: No such file or directory`}]); return; }
-  if(node.type === 'file'){ lines([{t:'err',v:`cd: ${arg}: Not a directory`}]); return; }
-  cwd = target;
-  cwdEl.textContent = cwd;
+  if(!arg){cmdPwd();return}
+  const target=findPath(normalizePath(arg));
+  if(!target||WIN_FS[target]?.type!=='dir'){
+    lines([{t:'err',v:`Set-Location: Cannot find path '${arg}' because it does not exist.`}]);
+    return;
+  }
+  cwd=target;
+  updatePrompt();
 }
 
-function cmdCat(arg){
-  if(!arg){ lines([{t:'err',v:'cat: missing operand'}]); return; }
-  const target = resolvePath(arg);
-  const node = FS[target];
-  if(!node){ lines([{t:'err',v:`cat: ${arg}: No such file or directory`}]); return; }
-  if(node.type === 'dir'){ lines([{t:'err',v:`cat: ${arg}: Is a directory`}]); return; }
-  node.content.forEach(l => lines([{t: l.startsWith('#') ? 'out-h' : 'out', v:l}]));
+function cmdType(arg){
+  if(!arg){lines([{t:'err',v:'Get-Content: Missing an argument for parameter Path.'}]);return}
+  const target=findPath(normalizePath(arg));
+  const node=target?WIN_FS[target]:null;
+  if(!node){lines([{t:'err',v:`Get-Content: Cannot find path '${arg}' because it does not exist.`}]);return}
+  if(node.type==='dir'){lines([{t:'err',v:`Get-Content: '${arg}' is a directory.`}]);return}
+  (node.content||[]).forEach(line=>lines([{t:line.startsWith('#')?'out-h':'out',v:line}]));
 }
 
-function cmdTree(path, depth){
-  if(depth > 3) return;
-  const node = FS[path];
-  if(!node || node.type !== 'dir') return;
-  if(depth === 0) lines([{t:'out-h',v:path.split('/').pop() || '~'}]);
-  (node.children || []).forEach((c,i,arr) => {
-    const isLast = i === arr.length-1;
-    const prefix = '  '.repeat(depth) + (isLast ? '└── ' : '├── ');
-    const fullPath = path + '/' + c;
-    const child = FS[fullPath];
-    const isDir = child && child.type === 'dir';
-    lines([{t:'raw',v:`<div class="t-line"><span class="t-grey">${escHtml(prefix)}</span><span class="${isDir?'t-dir':'t-file'}">${escHtml(c)}${isDir?'/':''}</span></div>`}]);
-    if(isDir && depth < 2) cmdTree(fullPath, depth+1);
-  });
+function cmdPwd(){
+  lines([{t:'raw',v:'<div class="ps-muted">Path</div>'},{t:'raw',v:'<div class="ps-muted">----</div>'},{t:'out',v:cwd}]);
 }
 
-function cmdWhoami(){
+function cmdClear(){body.innerHTML=''}
+
+function cmdHelp(){
   lines([
-    {t:'out-h',v:'Patrik Djasník'},
-    {t:'out',v:'Role:    Full-Stack Internal Apps Developer'},
-    {t:'out',v:'Based:   Prague, Czech Republic'},
-    {t:'out',v:'Brand:   RabbitHollow'},
-    {t:'out',v:'Focus:   AI agents · Internal apps · Local LLM · Automation'},
+    {t:'out-h',v:'Supported commands'},
+    {t:'raw',v:'<table class="ps-table"><tbody>'+
+      '<tr><td>dir / ls / Get-ChildItem</td><td>List files and folders</td></tr>'+
+      '<tr><td>cd / Set-Location</td><td>Change folder</td></tr>'+
+      '<tr><td>type / cat / Get-Content</td><td>Read a file</td></tr>'+
+      '<tr><td>pwd / Get-Location</td><td>Show current path</td></tr>'+
+      '<tr><td>start &lt;project&gt;</td><td>Open a live project</td></tr>'+
+      '<tr><td>projects</td><td>Portfolio overview</td></tr>'+
+      '<tr><td>stack</td><td>Technical stack</td></tr>'+
+      '<tr><td>whoami</td><td>About Patrik</td></tr>'+
+      '<tr><td>contact</td><td>Contact details</td></tr>'+
+      '<tr><td>git log / git status</td><td>Git simulation</td></tr>'+
+      '<tr><td>cls / clear</td><td>Clear terminal</td></tr>'+
+      '</tbody></table>'},
     {t:'blank'},
-    {t:'out',v:'Independent developer building practical tools under RabbitHollow.'},
-    {t:'out',v:'Building tools that solve problems Excel can\'t show.'},
+    {t:'comment',v:'TAB autocomplete · ↑↓ history · Ctrl+L clear'}
   ]);
 }
 
 function cmdProjects(){
-  const projs = [
-    ['deception-platform','Deception Intelligence Platform','MVP in dev'],
-    ['rh-studio','Offline-First AI Dev Studio','Active dev'],
-    ['rh-threads','RabbitHollow Threads (Android)','Prototype'],
-    ['rh-knight','RabbitHollow Knight (Game)','Live · v7.0'],
-    ['cipísek','Cipísek WMS AI Agent','Shipped'],
-    ['wms-lookup','WMS Lookup PWA','Shipped · v18'],
-    ['registra','REGISTRA (EU AI Act)','Prototype'],
-    ['charmieweb','charmieWeb (Client)','Live'],
-    ['terminal-cheatsheet','Terminal Cheatsheet','Ongoing'],
-    ['sap-trenázer','SAP ERP Trenažér','Shipped'],
-  ];
-  lines([{t:'out-h',v:'Projects in ~/projects:'},]);
-  projs.forEach(([slug,name,status]) => {
-    lines([{t:'raw',v:`<div class="t-line"><span class="t-dir" style="min-width:200px">${escHtml(slug)}/</span><span class="t-comment">${escHtml(name)} — ${escHtml(status)}</span></div>`}]);
-  });
-  lines([{t:'blank'},{t:'comment',v:'# cd projects/<name> then ls to explore'}]);
+  lines([
+    {t:'out-h',v:'Portfolio projects'},
+    {t:'raw',v:'<table class="ps-table"><thead><tr><th>Name</th><th>Status</th><th>Focus</th></tr></thead><tbody>'+
+      '<tr><td class="dir">AI-agent</td><td class="ps-success">active</td><td>AI agents · automation</td></tr>'+
+      '<tr><td class="dir">deception-analyzer</td><td class="ps-warn">building</td><td>security · deception</td></tr>'+
+      '<tr><td class="dir">RabbitHollow-Knight</td><td class="ps-success">live</td><td>browser game</td></tr>'+
+      '<tr><td class="dir">REGISTRA</td><td class="ps-warn">prototype</td><td>AI compliance</td></tr>'+
+      '<tr><td class="dir">Cipisek</td><td class="ps-warn">development</td><td>AI assistant</td></tr>'+
+      '</tbody></table>'},
+    {t:'blank'},
+    {t:'comment',v:'Try: cd AI-agent  →  dir  →  type README.md'}
+  ]);
 }
 
 function cmdStack(){
-  lines([
-    {t:'out-h',v:'Tech Stack:'},
-    {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">Dev:</span><span class="t-out">HTML5 CSS3 JavaScript TypeScript React Python NestJS FastAPI</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">AI/LLM:</span><span class="t-out">Gemini Claude llama.cpp GGUF Ollama prompt-engineering agent-arch</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">Security:</span><span class="t-out">Kali ethical-hacking threat-hunting honeynet breadcrumbing RBAC Wireshark Ghidra</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">Tools:</span><span class="t-out">Git Docker Vercel Render Postman VSCode PowerShell Termux Buildozer</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">Systems:</span><span class="t-out">internal-apps automation PWA WebSockets offline-first</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">Languages:</span><span class="t-out">Czech(C2) English(B1) Slovak(B2)</span></div>`},
-  ]);
+  lines([{t:'out-h',v:'Technical stack'},{t:'out',v:'Frontend  TypeScript · React · JavaScript · PWA'},{t:'out',v:'Backend   Python · FastAPI · Prisma · PostgreSQL'},{t:'out',v:'AI        llama.cpp · GGUF · Ollama · Gemini · agent tooling'},{t:'out',v:'Systems   Docker · Git · WebSockets · Service Workers'}]);
+}
+
+function cmdWhoami(){
+  lines([{t:'out-h',v:'Patrik Djasník'},{t:'out',v:'Full-Stack Internal Apps Developer'},{t:'out',v:'RabbitHollow · Prague, CZ'},{t:'blank'},{t:'out',v:'Building internal tools, AI agents, automation and local-first software.'}]);
 }
 
 function cmdContact(){
-  lines([
-    {t:'out-h',v:'Contact:'},
-    {t:'out',v:'  email:   patrikdjasnik@gmail.com'},
-    {t:'out',v:'  phone:   +420 776 608 475'},
-    {t:'out',v:'  github:  github.com/patrikdjasnik-eng'},
-    {t:'out',v:'  city:    Prague, CZ'},
-    {t:'blank'},
-    {t:'out',v:'  status:  open to work'},
-  ]);
+  lines([{t:'out-h',v:'Contact'},{t:'out',v:'Email   patrikdjasnik@gmail.com'},{t:'out',v:'GitHub  github.com/patrikdjasnik-eng'},{t:'out',v:'Status  available for freelance work'}]);
 }
 
-function cmdOpen(arg){
-  const urls = {
-    'rh-knight':'https://rabbit-hollow-knight.vercel.app/',
-    'charmieweb':'https://charmiejpg.vercel.app/',
+function cmdStart(arg){
+  const urls={
+    'ai-agent':'https://github.com/patrikdjasnik-eng/AI-agent',
+    'deception-analyzer':'https://github.com/patrikdjasnik-eng/deception-analyzer',
+    'rabbithollow-knight':'https://rabbit-hollow-knight.vercel.app/',
+    'wms-lookup':'https://erp-zjus.vercel.app/',
     'terminal-cheatsheet':'https://command-list-eta.vercel.app/',
+    'sap-erp-trainer':'https://erp-brown-eight.vercel.app/'
   };
-  if(!arg){ lines([{t:'err',v:'open: specify project name'}]); return; }
-  const url = urls[arg];
-  if(!url){ lines([{t:'err',v:`open: no live url for '${arg}'`}]); return; }
-  lines([{t:'out',v:`Opening ${url} ...`}]);
-  window.open(url,'_blank');
-}
-
-function cmdFind(arg){
-  if(!arg){ lines([{t:'err',v:'find: missing argument'}]); return; }
-  const results = Object.keys(FS).filter(k => k.includes(arg));
-  if(!results.length){ lines([{t:'out',v:'(no results)'}]); return; }
-  results.forEach(r => lines([{t:'raw',v:`<div class="t-line"><span class="${FS[r].type==='dir'?'t-dir':'t-file'}">${escHtml(r)}</span></div>`}]));
-}
-
-function cmdNeofetch(){
-  lines([
-    {t:'raw',v:`<div class="t-line"><span class="t-comment">        ██████</span><span class="t-highlight" style="margin-left:1.5rem">patrik</span><span class="t-grey">@</span><span class="t-blue">rabbithollow</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-comment">      ████████</span><span class="t-grey" style="margin-left:1.5rem">─────────────────</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-amber" style="color:var(--amber)">    ██</span><span class="t-comment">████████</span><span class="t-amber" style="color:var(--amber)">██</span><span class="t-grey" style="margin-left:1.5rem">OS:</span><span class="t-out"> RabbitHollow v2.6.0</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-comment">    ████████████</span><span class="t-grey" style="margin-left:1.5rem">Host:</span><span class="t-out"> Prague, CZ</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-comment">      ████████</span><span class="t-grey" style="margin-left:1.5rem">Brand:</span><span class="t-out"> RabbitHollow</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-comment">        ████</span><span class="t-grey" style="margin-left:1.5rem">Role:</span><span class="t-out"> Full-Stack Internal Apps Dev</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-grey" style="margin-left:5.5rem">GPU:</span><span class="t-out"> GTX 1070 Ti (CUDA, local LLM)</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-grey" style="margin-left:5.5rem">RAM:</span><span class="t-out"> 16GB</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-grey" style="margin-left:5.5rem">Shell:</span><span class="t-out"> PowerShell / Termux / WSL</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-grey" style="margin-left:5.5rem">Editor:</span><span class="t-out"> VS Code + JetBrains</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-grey" style="margin-left:5.5rem">Status:</span><span class="t-green"> open to work</span></div>`},
-  ]);
+  const key=arg.toLowerCase().replace(/^\.\\/,'');
+  if(!arg||!urls[key]){lines([{t:'err',v:`Start-Process: No target registered for '${arg||'(empty)'}'.`}]);return}
+  lines([{t:'success',v:`Opening ${urls[key]}`}]);
+  window.open(urls[key],'_blank','noopener');
 }
 
 function cmdGit(args){
-  const sub = args[0];
-  if(sub === 'log'){
-    const log = [
-      ['f3a2b1c','feat: add dual-control approval to deception platform','2026-09-01'],
-      ['a8e4d2f','feat: RH Studio — offline sync module','2026-08-28'],
-      ['c1b9e7a','feat: RabbitHollow Threads Android prototype','2026-08-20'],
-      ['d4f8c3e','feat: charmieWeb — Twitch Partner site','2026-08-15'],
-      ['b2a7f1d','fix: cipísek prompt injection hardening','2026-08-10'],
-      ['e9c3b4a','feat: WMS Lookup v18 — UA i18n, PDF reports','2026-08-01'],
-      ['f1e8d2c','feat: RH Knight v7.0 — Endless mode, achievements','2026-07-22'],
-      ['a3c7e9b','feat: REGISTRA — EU AI Act compliance calendar','2026-07-15'],
-      ['b8f2d4e','feat: terminal cheatsheet — kubernetes, ssh modules','2026-07-01'],
-    ];
-    lines([{t:'out-h',v:'commit history (patrikdjasnik-eng/rabbithollow)'}]);
-    log.forEach(([hash,msg,date]) => {
-      lines([{t:'raw',v:`<div class="t-line"><span class="t-highlight">${hash}</span><span class="t-grey" style="margin:0 .75rem">${date}</span><span class="t-out">${escHtml(msg)}</span></div>`}]);
-    });
-  } else if(sub === 'status'){
-    lines([
-      {t:'green',v:'On branch main'},
-      {t:'out',v:'Your branch is up to date with origin/main'},
-      {t:'blank'},
-      {t:'out',v:"nothing to commit, working tree clean"},
-    ]);
+  const sub=(args[0]||'').toLowerCase();
+  if(sub==='status'){
+    lines([{t:'success',v:'On branch main'},{t:'out',v:'Your branch is up to date with origin/main.'},{t:'blank'},{t:'out',v:'nothing to commit, working tree clean'}]);
+  } else if(sub==='log'){
+    [['3683ec5','refactor: cleaner portfolio hero'],['ee7e470','feat: selected-work redesign'],['6cfb41d','feat: agent workflow updates'],['c2a191f','chore: local agent snapshot']].forEach(([hash,msg])=>lines([{t:'raw',v:`<div class="t-line"><span class="t-highlight">${hash}</span><span class="t-out">${escHtml(msg)}</span></div>`}]));
   } else {
-    lines([{t:'err',v:`git: '${args.join(' ')}' — try 'git log' or 'git status'`}]);
+    lines([{t:'out',v:'usage: git log | git status'}]);
   }
 }
 
-function switchTab(tab){
-  activeTab = tab;
-  document.querySelectorAll('.t-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  body.innerHTML = '';
-  if(tab === 'explorer'){
-    cwd = '~/projects';
-    cwdEl.textContent = cwd;
-    lines([{t:'comment',v:'# switched to file explorer'}]);
-    runCmd('ls');
-  } else if(tab === 'git'){
-    lines([{t:'comment',v:'# git log'}]);
+function cmdSystem(){
+  lines([{t:'out-h',v:'RabbitHollow workstation'},{t:'out',v:'OS       Windows'},{t:'out',v:'Shell    PowerShell / WSL'},{t:'out',v:'GPU      GTX 1070 Ti'},{t:'out',v:'Runtime  local LLM + browser portfolio'}]);
+}
+
+function switchTab(tab,button){
+  activeTab=tab;
+  document.querySelectorAll('.t-tab').forEach(el=>el.classList.remove('active'));
+  if(button) button.classList.add('active');
+  if(tab==='powershell'){
+    cwd='C:\\Users\\Patrik\\Projects';
+    bootPowerShell();
+  } else if(tab==='git'){
+    body.innerHTML='';
+    lines([{t:'out-h',v:'git log --oneline --decorate'}]);
     cmdGit(['log']);
-    lines([{t:'blank'}]);
-  } else if(tab === 'htop'){
-    cmdNeofetch();
-    lines([{t:'blank'},{t:'comment',v:'# running processes: ollama · docker · vercel-dev · vs-code'}]);
-    lines([{t:'out',v:'PID  NAME              CPU%  MEM%'}]);
-    lines([{t:'out',v:'001  ollama-serve       12.4   8.2   (Qwen2.5-7B)'}]);
-    lines([{t:'out',v:'002  docker-daemon       3.1   4.5'}]);
-    lines([{t:'out',v:'003  code                8.8  11.3'}]);
-    lines([{t:'out',v:'004  rh-studio-dev       2.2   3.1'}]);
-    lines([{t:'out',v:'005  firefox            15.2   9.8'}]);
-    lines([{t:'blank'},{t:'comment',v:'# type commands to continue exploring'}]);
+  } else {
+    body.innerHTML='';
+    cmdSystem();
+    lines([{t:'blank'},{t:'out-h',v:'Running services'},{t:'out',v:'llama-server     local inference'},{t:'out',v:'FastAPI          agent backend'},{t:'out',v:'Vite             frontend dev server'},{t:'out',v:'Docker           containers'}]);
   }
 }
 </script>
 </body>
 </html>
-<!-- inject game section + nav link via JS -->
+
+<!-- arcade shooting gallery -->
 <script>
-(function injectGame(){
+(function(){
+  const navLinks=document.querySelector('.nav-links');
+  const li=document.createElement('li');
+  li.innerHTML='<a href="#game" style="color:var(--amber)">game</a>';
+  navLinks.appendChild(li);
 
-// ── NAV LINK ─────────────────────────────────────────────────────────────────
-const navLinks = document.querySelector('.nav-links');
-const li = document.createElement('li');
-li.innerHTML = '<a href="#game" style="color:var(--amber)">game</a>';
-navLinks.appendChild(li);
+  const section=document.createElement('section');
+  section.id='game';
+  section.className='game-section';
+  section.innerHTML=`
+    <div class="game-shell">
+      <div class="game-heading">
+        <div>
+          <div class="s-label">mini game</div>
+          <h2>Cyber Range</h2>
+          <p>Arcade shooting gallery inspired by classic Moorhuhn-style gameplay — except the targets are cyber threats.</p>
+        </div>
+        <div class="game-help">
+          <span><kbd>CLICK</kbd> shoot</span>
+          <span><kbd>R</kbd> reload</span>
+          <span><kbd>P</kbd> pause</span>
+        </div>
+      </div>
 
-// ── SECTION HTML ─────────────────────────────────────────────────────────────
-const sec = document.createElement('section');
-sec.id = 'game';
-sec.style.cssText = 'background:var(--bg);border-top:1px solid var(--bg4);padding:4rem 4rem 5rem';
-sec.innerHTML = `
-<div class="s-label">mini game</div>
-<h2>CyberHop</h2>
-<div style="font-family:var(--mono);font-size:.78rem;color:var(--grey);margin-bottom:1.5rem;line-height:1.7">
-  You are <span style="color:var(--amber)">RabbitAgent</span> — intercept incoming cyber attacks before they breach the system.<br>
-  <span style="color:var(--grey2)">Ground threats: SPACE to hop over them, or click to shoot &nbsp;·&nbsp; Air threats: too high to jump — click to shoot them down &nbsp;·&nbsp; mobile: tap buttons below</span>
-</div>
+      <div class="game-frame">
+        <div class="game-hud">
+          <div><span>SCORE</span><strong id="g-score">0000</strong></div>
+          <div><span>COMBO</span><strong id="g-combo">x1</strong></div>
+          <div><span>TIME</span><strong id="g-time">60</strong></div>
+          <div><span>AMMO</span><strong id="g-ammo">●●●●●●</strong></div>
+          <div><span>HIGH</span><strong id="g-high">0000</strong></div>
+        </div>
 
-<div id="game-wrap" style="position:relative;display:inline-block;width:100%;max-width:860px">
+        <div class="game-canvas-wrap">
+          <canvas id="cyber-range" width="1100" height="560"></canvas>
+          <div class="game-overlay" id="game-overlay">
+            <div class="game-card">
+              <span>RABBITHOLLOW RANGE</span>
+              <h3 id="game-title">Cyber Range</h3>
+              <p id="game-copy">Shoot phishing, malware, ransomware, botnets and rare zero-days before they escape. Six rounds per magazine.</p>
+              <button id="game-start" type="button">Start 60s run</button>
+            </div>
+          </div>
+        </div>
 
-  <!-- HUD -->
-  <div id="hud" style="
-    display:flex;justify-content:space-between;align-items:center;
-    background:var(--bg3);border:1px solid var(--bg4);border-bottom:none;
-    padding:.5rem 1.25rem;font-family:var(--mono);font-size:.75rem;
-  ">
-    <div>
-      <span style="color:var(--grey2)">score: </span>
-      <span id="g-score" style="color:var(--amber);font-weight:700">0</span>
+        <div class="game-bottom">
+          <div class="game-status" id="game-status">READY</div>
+          <button id="game-reload" type="button">RELOAD [R]</button>
+        </div>
+      </div>
+
+      <div class="game-legend">
+        <span><i style="background:#facc15"></i> phishing +10</span>
+        <span><i style="background:#fb7185"></i> malware +15</span>
+        <span><i style="background:#fb923c"></i> ransomware +25</span>
+        <span><i style="background:#22d3ee"></i> backdoor +30</span>
+        <span><i style="background:#a78bfa"></i> zero-day +100</span>
+      </div>
     </div>
-    <div>
-      <span style="color:var(--grey2)">level: </span>
-      <span id="g-level" style="color:var(--blue)">1</span>
-    </div>
-    <div>
-      <span style="color:var(--grey2)">lives: </span>
-      <span id="g-lives" style="color:var(--red)">♥♥♥</span>
-    </div>
-    <div>
-      <span style="color:var(--grey2)">time: </span>
-      <span id="g-time" style="color:var(--green)">60</span>
-    </div>
-    <div>
-      <span style="color:var(--grey2)">hi: </span>
-      <span id="g-hi" style="color:var(--purple)">0</span>
-    </div>
-  </div>
+  `;
+  document.querySelector('footer').before(section);
 
-  <!-- CANVAS -->
-  <canvas id="gc" style="display:block;border:1px solid var(--bg4);background:var(--bg2);cursor:crosshair;width:100%;max-width:860px"></canvas>
+  const style=document.createElement('style');
+  style.textContent=`
+    .game-section{padding:5rem clamp(1.5rem,4vw,4rem);background:#080b12;border-top:1px solid var(--bg4)}
+    .game-shell{max-width:1180px;margin:0 auto}
+    .game-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;margin-bottom:1.5rem}
+    .game-heading h2{margin-bottom:.7rem}
+    .game-heading p{max-width:680px;color:var(--grey);line-height:1.7}
+    .game-help{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:flex-end;font:600 .62rem var(--mono);color:#7f8daa}
+    .game-help span{display:flex;align-items:center;gap:.35rem}
+    .game-help kbd{border:1px solid #2d3a56;border-radius:4px;background:#121a2a;color:#e4e9f4;padding:.22rem .4rem;font:600 .6rem var(--mono);box-shadow:0 2px 0 #05080d}
+    .game-frame{border:1px solid #222d44;border-radius:10px;overflow:hidden;background:#0b111d;box-shadow:0 24px 70px rgba(0,0,0,.34)}
+    .game-hud{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#1f2a40;border-bottom:1px solid #222d44}
+    .game-hud div{background:#0e1524;padding:.7rem .9rem;font-family:var(--mono)}
+    .game-hud span{display:block;color:#62708c;font-size:.56rem;letter-spacing:.12em;margin-bottom:.15rem}
+    .game-hud strong{color:#f2efe4;font-size:.83rem;font-weight:600}
+    .game-hud div:nth-child(1) strong{color:var(--amber)}
+    .game-hud div:nth-child(2) strong{color:#58d6a2}
+    .game-hud div:nth-child(4) strong{color:#ffcf5a;letter-spacing:.15em}
+    .game-canvas-wrap{position:relative;background:#060a11}
+    #cyber-range{display:block;width:100%;height:auto;aspect-ratio:1100/560;cursor:none;touch-action:none}
+    .game-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,8,15,.72);backdrop-filter:blur(2px);z-index:3}
+    .game-overlay.hidden{display:none}
+    .game-card{width:min(430px,86%);padding:1.5rem;border:1px solid #2b3854;border-radius:8px;background:rgba(12,18,31,.96);text-align:center;font-family:var(--mono)}
+    .game-card>span{display:block;color:var(--amber);font-size:.58rem;letter-spacing:.16em;margin-bottom:.65rem}
+    .game-card h3{font-size:1.45rem;color:#fff;margin-bottom:.7rem}
+    .game-card p{color:#8f9bb4;font-size:.72rem;line-height:1.7;margin-bottom:1.1rem}
+    .game-card button,.game-bottom button{appearance:none;border:1px solid rgba(240,180,41,.45);border-radius:5px;background:rgba(240,180,41,.1);color:var(--amber);padding:.65rem 1rem;font:600 .7rem var(--mono);cursor:pointer}
+    .game-card button:hover,.game-bottom button:hover{background:var(--amber);color:#090b12}
+    .game-bottom{display:flex;justify-content:space-between;align-items:center;padding:.65rem .8rem;background:#0e1524;border-top:1px solid #222d44}
+    .game-status{font:600 .64rem var(--mono);letter-spacing:.08em;color:#66738e}
+    .game-status.hot{color:#58d6a2}
+    .game-status.reload{color:#f1c35c}
+    .game-legend{display:flex;flex-wrap:wrap;gap:.75rem 1.2rem;margin-top:1rem;color:#74819b;font:500 .62rem var(--mono)}
+    .game-legend span{display:flex;align-items:center;gap:.4rem}
+    .game-legend i{display:block;width:8px;height:8px;border-radius:50%}
+    @media(max-width:760px){
+      .game-heading{align-items:flex-start;flex-direction:column}
+      .game-help{justify-content:flex-start}
+      .game-hud{grid-template-columns:repeat(3,1fr)}
+      .game-hud div:nth-child(4),.game-hud div:nth-child(5){grid-column:span 1}
+    }
+  `;
+  document.head.appendChild(style);
 
-  <!-- MOBILE CONTROLS -->
-  <div style="display:flex;justify-content:space-between;margin-top:.75rem;gap:.5rem">
-    <div style="display:flex;gap:.5rem">
-      <button id="btn-l" class="btn btn-b" style="font-size:1.2rem;padding:.5rem 1.2rem;user-select:none">←</button>
-      <button id="btn-r" class="btn btn-b" style="font-size:1.2rem;padding:.5rem 1.2rem;user-select:none">→</button>
-    </div>
-    <button id="btn-j" class="btn btn-b" style="font-size:.78rem;padding:.5rem 1.5rem;user-select:none">SPACE / jump</button>
-    <button id="btn-start" class="btn btn-a" style="font-size:.78rem;padding:.5rem 1.5rem" onclick="GH.start()">▶ START</button>
-  </div>
-</div>
+  const canvas=document.getElementById('cyber-range');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width;
+  const H=canvas.height;
+  const overlay=document.getElementById('game-overlay');
+  const startBtn=document.getElementById('game-start');
+  const reloadBtn=document.getElementById('game-reload');
+  const titleEl=document.getElementById('game-title');
+  const copyEl=document.getElementById('game-copy');
+  const scoreEl=document.getElementById('g-score');
+  const comboEl=document.getElementById('g-combo');
+  const timeEl=document.getElementById('g-time');
+  const ammoEl=document.getElementById('g-ammo');
+  const highEl=document.getElementById('g-high');
+  const statusEl=document.getElementById('game-status');
 
-<!-- LEGEND -->
-<div style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:1.5rem;max-width:860px">
-  ${[
-    ['#f87171','DDoS','ground · jump or shoot · 10pts'],
-    ['#facc15','Phishing','ground · fast, jump or shoot · 15pts'],
-    ['#fb923c','Ransomware','ground · bouncing, jump or shoot · 25pts'],
-    ['#22d3ee','Backdoor','air · zigzag, shoot only · 20pts'],
-    ['#60a5fa','MITM','air · flickers invisible, shoot only · 30pts'],
-    ['#a78bfa','Zero-day','air · boss, shoot only · 100pts'],
-  ].map(([c,n,d])=>`
-    <div style="display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.68rem">
-      <div style="width:10px;height:10px;border-radius:50%;background:${c};flex-shrink:0"></div>
-      <span style="color:var(--white)">${n}</span>
-      <span style="color:var(--grey2)">${d}</span>
-    </div>
-  `).join('')}
-</div>
-`;
-
-// insert before footer
-document.querySelector('footer').before(sec);
-
-// ── GAME ENGINE ───────────────────────────────────────────────────────────────
-const GH = window.GH = (() => {
-  const canvas = document.getElementById('gc');
-  const ctx = canvas.getContext('2d');
-
-  // canvas size
-  const W = 860, H = 380;
-  canvas.width = W; canvas.height = H;
-
-  // ── CONSTANTS ──
-  const GROUND = H - 60;
-  const GRAVITY = 0.55;
-  const JUMP_V = -13;
-  const PLAYER_W = 38, PLAYER_H = 42;
-  const JUMP_REACH = (JUMP_V*JUMP_V)/(2*GRAVITY); // max výška, do které skok doskočí
-  const AIR_Y = GROUND - JUMP_REACH - 90; // vzdušné hrozby jsou schválně mimo dosah skoku
-
-  // ── ATTACK TYPES ──
-  // lane:'ground'  → letí při zemi, dá se přeskočit (SPACE) nebo sestřelit klikem
-  // lane:'air'     → letí moc vysoko na skok, jde jen sestřelit klikem
-  const ATTACKS = [
-    { type:'DDoS',      color:'#f87171', r:18, speed:1.2, pts:10,  hp:3, label:'DDoS',   lane:'ground', minLevel:1 },
-    { type:'Phishing',  color:'#facc15', r:10, speed:3.0, pts:15,  hp:1, label:'PHISH',  lane:'ground', minLevel:1 },
-    { type:'Ransomware',color:'#fb923c', r:14, speed:1.8, pts:25,  hp:2, label:'RANSOM', lane:'ground', bounce:true, minLevel:2 },
-    { type:'Backdoor',  color:'#22d3ee', r:11, speed:2.4, pts:20,  hp:1, label:'BACK',   lane:'air', zigzag:true, minLevel:2 },
-    { type:'MITM',      color:'#60a5fa', r:12, speed:2.0, pts:30,  hp:2, label:'MITM',   lane:'air', stealth:true, minLevel:3 },
-    { type:'Zero-day',  color:'#a78bfa', r:22, speed:1.6, pts:100, hp:5, label:'0DAY',   lane:'air', boss:true, minLevel:4 },
+  const TARGETS=[
+    {name:'PHISH',color:'#facc15',points:10,r:28,speed:[1.8,2.8],hp:1,kind:'mail'},
+    {name:'MALWARE',color:'#fb7185',points:15,r:25,speed:[2.2,3.2],hp:1,kind:'virus'},
+    {name:'BOTNET',color:'#60a5fa',points:20,r:30,speed:[1.7,2.6],hp:1,kind:'bot'},
+    {name:'RANSOM',color:'#fb923c',points:25,r:31,speed:[1.5,2.4],hp:2,kind:'lock'},
+    {name:'BACKDOOR',color:'#22d3ee',points:30,r:24,speed:[2.7,3.8],hp:1,kind:'door'},
+    {name:'TROJAN',color:'#34d399',points:35,r:27,speed:[2.4,3.5],hp:2,kind:'horse'},
+    {name:'0-DAY',color:'#a78bfa',points:100,r:34,speed:[3.0,4.2],hp:3,kind:'zero',rare:true}
   ];
-  const MAX_ATTACKS = 4; // kolik nepřátel může být na obrazovce zároveň
 
-  // ── STATE ──
-  let state = 'idle'; // idle | running | dead | win
-  let score=0, hi=0, lives=3, timeLeft=60, level=1;
-  let frame=0, spawnTimer=0, spawnRate=90;
-  let timerInterval=null;
+  let state='idle';
+  let score=0;
+  let combo=1;
+  let streak=0;
+  let ammo=6;
+  let timeLeft=60;
+  let frame=0;
+  let targets=[];
+  let particles=[];
+  let hitMarks=[];
+  let spawnTimer=0;
+  let nextSpawn=50;
+  let reloading=false;
+  let reloadUntil=0;
+  let lastTs=0;
+  let timerId=null;
+  let mouse={x:W/2,y:H/2,inside:false};
+  let high=Number(localStorage.getItem('rhCyberRangeHigh')||0);
 
-  const keys = {};
-  const player = { x:80, y:GROUND, vy:0, onGround:true, dir:1, animFrame:0, hit:0, shield:0 };
-  let attacks = [];
-  let particles = [];
-  let floaters = [];
-
-  // ── INPUT ──
-  function isTyping(){
-    const el = document.activeElement;
-    return el && (el.tagName==='INPUT' || el.tagName==='TEXTAREA' || el.isContentEditable);
-  }
-  document.addEventListener('keydown', e => {
-    if(isTyping()) return; // nech mezerník/šipky fungovat normálně v terminálu
-    keys[e.code] = true;
-    if(e.code==='Space'){ e.preventDefault(); jump(); }
-    if(e.code==='ArrowLeft'||e.code==='ArrowRight') e.preventDefault();
-  });
-  document.addEventListener('keyup', e => {
-    if(isTyping()) return;
-    keys[e.code]=false;
-  });
-
-  document.getElementById('btn-l').addEventListener('pointerdown',()=>keys['ArrowLeft']=true);
-  document.getElementById('btn-l').addEventListener('pointerup',()=>keys['ArrowLeft']=false);
-  document.getElementById('btn-r').addEventListener('pointerdown',()=>keys['ArrowRight']=true);
-  document.getElementById('btn-r').addEventListener('pointerup',()=>keys['ArrowRight']=false);
-  document.getElementById('btn-j').addEventListener('pointerdown',()=>jump());
-
-  canvas.addEventListener('click', e => {
-    if(state !== 'running') return;
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = W / rect.width;
-    const scaleY = H / rect.height;
-    const mx = (e.clientX - rect.left) * scaleX;
-    const my = (e.clientY - rect.top) * scaleY;
-    clickAttack(mx, my);
-  });
-
-  canvas.addEventListener('touchstart', e => {
-    if(state !== 'running') return;
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = W / rect.width;
-    const scaleY = H / rect.height;
-    const t = e.touches[0];
-    clickAttack((t.clientX - rect.left)*scaleX, (t.clientY - rect.top)*scaleY);
-  }, {passive:false});
-
-  function jump(){
-    if(state !== 'running') return;
-    if(player.onGround){ player.vy = JUMP_V; player.onGround = false; }
+  function rand(min,max){return Math.random()*(max-min)+min}
+  function formatScore(v){return String(Math.max(0,Math.floor(v))).padStart(4,'0')}
+  function updateHud(){
+    scoreEl.textContent=formatScore(score);
+    comboEl.textContent='x'+combo;
+    timeEl.textContent=String(timeLeft);
+    ammoEl.textContent='●'.repeat(ammo)+'○'.repeat(6-ammo);
+    highEl.textContent=formatScore(high);
   }
 
-  function clickAttack(mx, my){
-    for(let i=attacks.length-1;i>=0;i--){
-      const a = attacks[i];
-      const dist = Math.hypot(a.x-mx, a.y-my);
-      if(dist < a.r + 12){
-        a.hp--;
-        spawnHit(a.x, a.y, a.color);
-        if(a.hp <= 0){
-          addScore(a.pts, a.x, a.y, a.color);
-          attacks.splice(i,1);
-        }
-        break;
-      }
-    }
+  function setStatus(text,cls=''){
+    statusEl.textContent=text;
+    statusEl.className='game-status '+cls;
   }
 
-  // ── PARTICLES ──
-  function spawnHit(x, y, color){
-    for(let i=0;i<8;i++){
-      particles.push({
-        x, y,
-        vx:(Math.random()-0.5)*5,
-        vy:(Math.random()-0.5)*5,
-        life:30, maxLife:30,
-        color, r:Math.random()*3+1
-      });
-    }
-  }
-
-  function spawnBoom(x, y, color){
-    for(let i=0;i<20;i++){
-      particles.push({
-        x, y,
-        vx:(Math.random()-0.5)*9,
-        vy:(Math.random()-0.5)*9,
-        life:45, maxLife:45,
-        color, r:Math.random()*4+2
-      });
-    }
-  }
-
-  function addScore(pts, x, y, color){
-    score += pts;
-    floaters.push({ x, y, pts, color, life:50 });
-    updateHUD();
-  }
-
-  // ── SPAWN ──
-  function spawnAttack(){
-    const pool = ATTACKS.filter(t => level >= (t.minLevel||1));
-    const tpl = pool[Math.floor(Math.random()*pool.length)];
-    const fromRight = Math.random() > 0.3;
-    const baseY = tpl.lane === 'air' ? AIR_Y : GROUND - tpl.r;
-    const a = {
-      ...tpl,
-      x: fromRight ? W + tpl.r : -tpl.r,
-      y: baseY,
-      vx: (fromRight ? -1 : 1) * (tpl.speed + (level-1)*0.3),
-      vy: tpl.bounce ? -7 : 0,
-      t: 0,
-      origY: baseY,
-      visible: true,
-      stealthTimer: tpl.stealth ? 0 : -1,
-    };
-    attacks.push(a);
-  }
-
-  // ── UPDATE ──
-  function update(){
-    if(state !== 'running') return;
-    frame++;
-
-    // player movement
-    const spd = 4.5;
-    if(keys['ArrowLeft']){ player.x -= spd; player.dir = -1; }
-    if(keys['ArrowRight']){ player.x += spd; player.dir = 1; }
-    player.x = Math.max(PLAYER_W/2, Math.min(W - PLAYER_W/2, player.x));
-
-    // gravity
-    player.vy += GRAVITY;
-    player.y += player.vy;
-    if(player.y >= GROUND){ player.y = GROUND; player.vy = 0; player.onGround = true; }
-
-    // animate
-    if(keys['ArrowLeft']||keys['ArrowRight']) player.animFrame = Math.floor(frame/8)%4;
-    else player.animFrame = 0;
-    if(player.hit > 0) player.hit--;
-    if(player.shield > 0) player.shield--;
-
-    // attacks
-    spawnTimer++;
-    if(spawnTimer >= spawnRate){
-      spawnTimer = 0;
-      if(attacks.length < MAX_ATTACKS) spawnAttack();
-      spawnRate = Math.max(55, 105 - level*6);
-    }
-
-    attacks.forEach(a => {
-      a.t++;
-      a.x += a.vx;
-
-      if(a.bounce){
-        a.vy += GRAVITY * 0.6;
-        a.y += a.vy;
-        if(a.y >= GROUND - a.r){ a.y = GROUND - a.r; a.vy = -Math.abs(a.vy) * 0.7; }
-      } else if(a.zigzag){
-        a.y = a.origY + Math.sin(a.t * 0.08) * 18;
-      } else if(a.boss){
-        a.y = a.origY + Math.sin(a.t * 0.05) * 20;
-      } else if(a.lane === 'air'){
-        a.y = a.origY + Math.sin(a.t * 0.04) * 8;
-      }
-
-      if(a.stealth && a.stealthTimer >= 0){
-        a.stealthTimer++;
-        a.visible = Math.floor(a.stealthTimer/20)%2 === 0;
-      }
-    });
-
-    // collision player ↔ attacks
-    if(player.hit === 0){
-      for(let i=attacks.length-1;i>=0;i--){
-        const a = attacks[i];
-        const px = player.x, py = player.y - PLAYER_H/2;
-        const dist = Math.hypot(a.x-px, a.y-py);
-        if(dist < a.r + PLAYER_W*0.4){
-          player.hit = 60;
-          lives--;
-          spawnBoom(a.x, a.y, a.color);
-          attacks.splice(i,1);
-          updateHUD();
-          if(lives <= 0){ endGame(); return; }
-          break;
-        }
-      }
-    }
-
-    // remove off-screen
-    attacks = attacks.filter(a => a.x > -60 && a.x < W+60);
-
-    // particles
-    particles.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.life--; });
-    particles = particles.filter(p => p.life > 0);
-
-    // floaters
-    floaters.forEach(f => { f.y-=1; f.life--; });
-    floaters = floaters.filter(f => f.life > 0);
-
-    // level up every 200pts
-    const newLevel = Math.floor(score/200)+1;
-    if(newLevel > level){ level = newLevel; updateHUD(); }
-  }
-
-  // ── DRAW ──
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-
-    // background grid
-    ctx.strokeStyle='rgba(26,26,56,0.8)';
-    ctx.lineWidth=1;
-    for(let x=0;x<W;x+=40){
-      ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
-    }
-    for(let y=0;y<H;y+=40){
-      ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
-    }
-
-    // ground
-    ctx.fillStyle='#1a1a38';
-    ctx.fillRect(0,GROUND+2,W,H-GROUND);
-    ctx.strokeStyle='#f59e0b';
-    ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(0,GROUND+2);ctx.lineTo(W,GROUND+2);ctx.stroke();
-
-    // ground text
-    ctx.fillStyle='rgba(245,158,11,0.15)';
-    ctx.font='600 11px JetBrains Mono,monospace';
-    ctx.textAlign='left';
-    for(let x=0;x<W;x+=120){
-      ctx.fillText('FIREWALL PERIMETER',x+5,GROUND+18);
-    }
-
-    // jump ceiling guide — nad touto čarou skok nedosáhne, jde jen střílet
-    const jumpCeilY = GROUND - JUMP_REACH - PLAYER_H/2;
-    ctx.save();
-    ctx.setLineDash([6,6]);
-    ctx.strokeStyle='rgba(240,180,41,0.25)';
-    ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(0,jumpCeilY);ctx.lineTo(W,jumpCeilY);ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle='rgba(240,180,41,0.35)';
-    ctx.font='600 9px JetBrains Mono,monospace';
-    ctx.textAlign='left';
-    ctx.fillText('MAX JUMP HEIGHT — SHOOT THREATS ABOVE THIS LINE', 8, jumpCeilY-6);
-    ctx.restore();
-
-    // attacks
-    attacks.forEach(a => {
-      if(!a.visible) return;
-      ctx.save();
-
-      // glow
-      ctx.shadowColor = a.color;
-      ctx.shadowBlur = a.boss ? 20 : 10;
-
-      // circle
-      ctx.beginPath();
-      ctx.arc(a.x, a.y, a.r, 0, Math.PI*2);
-      ctx.fillStyle = a.color+'33';
-      ctx.fill();
-      ctx.strokeStyle = a.color;
-      ctx.lineWidth = a.boss ? 3 : 2;
-      ctx.stroke();
-
-      // hp bar
-      if(a.hp > 1){
-        const maxHp = ATTACKS.find(t=>t.type===a.type)?.hp || 1;
-        ctx.fillStyle='#333';
-        ctx.fillRect(a.x-a.r, a.y+a.r+3, a.r*2, 4);
-        ctx.fillStyle=a.color;
-        ctx.fillRect(a.x-a.r, a.y+a.r+3, a.r*2*(a.hp/maxHp), 4);
-      }
-
-      // label
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = a.color;
-      ctx.font = `600 ${a.boss?11:9}px JetBrains Mono,monospace`;
-      ctx.textAlign = 'center';
-      ctx.fillText(a.label, a.x, a.y + a.r + (a.hp>1?12:8));
-
-      ctx.restore();
-    });
-
-    // particles
-    particles.forEach(p => {
-      const alpha = p.life/p.maxLife;
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fill();
-    });
-    ctx.globalAlpha=1;
-
-    // floaters
-    floaters.forEach(f => {
-      const alpha = f.life/50;
-      ctx.globalAlpha=alpha;
-      ctx.fillStyle=f.color;
-      ctx.font='bold 14px JetBrains Mono,monospace';
-      ctx.textAlign='center';
-      ctx.fillText('+'+f.pts, f.x, f.y);
-    });
-    ctx.globalAlpha=1;
-
-    // player
-    drawRabbit(player.x, player.y, player.dir, player.animFrame, player.hit > 0, player.onGround);
-
-    // overlay states
-    if(state === 'idle') drawOverlay('CyberHop','Press ▶ START to play','var(--amber)');
-    if(state === 'dead') drawOverlay('BREACHED','Score: '+score+' · Press ▶ START to retry','#f87171');
-  }
-
-  function drawRabbit(x, y, dir, anim, hurt, onGround){
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(dir, 1);
-
-    const flash = hurt && Math.floor(Date.now()/80)%2===0;
-    const bodyCol = flash ? '#f87171' : '#e8e8f0';
-    const earCol  = flash ? '#f87171' : '#f0c8d0';
-    const eyeCol  = '#1a1a2e';
-    const noseCol = '#f87171';
-
-    // shadow
-    ctx.fillStyle='rgba(0,0,0,0.25)';
-    ctx.beginPath();ctx.ellipse(0, 4, 14, 5, 0, 0, Math.PI*2);ctx.fill();
-
-    // body
-    ctx.fillStyle=bodyCol;
-    ctx.beginPath();ctx.ellipse(0,-12,12,15,0,0,Math.PI*2);ctx.fill();
-
-    // head
-    ctx.beginPath();ctx.ellipse(3,-28,11,10,0.2,0,Math.PI*2);ctx.fill();
-
-    // ear L
-    ctx.fillStyle=bodyCol;
-    ctx.beginPath();ctx.ellipse(-3,-42,5,13,-0.2,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle=earCol;
-    ctx.beginPath();ctx.ellipse(-3,-42,3,10,-0.2,0,Math.PI*2);ctx.fill();
-
-    // ear R
-    ctx.fillStyle=bodyCol;
-    ctx.beginPath();ctx.ellipse(6,-40,4,12,0.15,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle=earCol;
-    ctx.beginPath();ctx.ellipse(6,-40,2.5,9,0.15,0,Math.PI*2);ctx.fill();
-
-    // eye
-    ctx.fillStyle=eyeCol;
-    ctx.beginPath();ctx.arc(8,-28,3,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='white';
-    ctx.beginPath();ctx.arc(9,-29,1,0,Math.PI*2);ctx.fill();
-
-    // nose
-    ctx.fillStyle=noseCol;
-    ctx.beginPath();ctx.arc(13,-25,2,0,Math.PI*2);ctx.fill();
-
-    // legs (animated)
-    const legOffset = onGround ? Math.sin(anim*Math.PI/2)*6 : 8;
-    ctx.fillStyle=bodyCol;
-    ctx.beginPath();ctx.ellipse(-5,0+legOffset,5,7,0.3,0,Math.PI*2);ctx.fill();
-    ctx.beginPath();ctx.ellipse(5,0-legOffset,5,7,-0.3,0,Math.PI*2);ctx.fill();
-
-    // tail
-    ctx.fillStyle='white';
-    ctx.beginPath();ctx.arc(-11,-10,5,0,Math.PI*2);ctx.fill();
-
-    // shield glow
-    if(player.shield > 0){
-      ctx.strokeStyle='rgba(96,165,250,0.6)';
-      ctx.lineWidth=3;
-      ctx.beginPath();ctx.arc(2,-15,22,0,Math.PI*2);ctx.stroke();
-    }
-
-    ctx.restore();
-  }
-
-  function drawOverlay(title, sub, color){
-    ctx.fillStyle='rgba(6,6,16,0.82)';
-    ctx.fillRect(0,0,W,H);
-    ctx.fillStyle=color;
-    ctx.font='bold 38px JetBrains Mono,monospace';
-    ctx.textAlign='center';
-    ctx.fillText(title,W/2,H/2-20);
-    ctx.fillStyle='#6b6b8f';
-    ctx.font='14px JetBrains Mono,monospace';
-    ctx.fillText(sub,W/2,H/2+18);
-  }
-
-  function updateHUD(){
-    document.getElementById('g-score').textContent=score;
-    document.getElementById('g-level').textContent=level;
-    document.getElementById('g-lives').textContent='♥'.repeat(Math.max(0,lives));
-    document.getElementById('g-time').textContent=timeLeft;
-    document.getElementById('g-hi').textContent=hi;
+  function startGame(){
+    score=0;combo=1;streak=0;ammo=6;timeLeft=60;frame=0;targets=[];particles=[];hitMarks=[];
+    spawnTimer=0;nextSpawn=45;reloading=false;state='running';lastTs=performance.now();
+    overlay.classList.add('hidden');
+    setStatus('LIVE RANGE','hot');
+    clearInterval(timerId);
+    timerId=setInterval(()=>{
+      if(state!=='running') return;
+      timeLeft--;
+      if(timeLeft<=0) endGame();
+      updateHud();
+    },1000);
+    updateHud();
   }
 
   function endGame(){
-    state='dead';
-    clearInterval(timerInterval);
-    if(score>hi){ hi=score; }
-    updateHUD();
+    state='ended';
+    clearInterval(timerId);
+    if(score>high){
+      high=score;
+      localStorage.setItem('rhCyberRangeHigh',String(high));
+    }
+    updateHud();
+    titleEl.textContent='Run complete';
+    copyEl.textContent=`Score ${score} · high score ${high}. Click below to run it again.`;
+    startBtn.textContent='Run again';
+    overlay.classList.remove('hidden');
+    setStatus('RANGE CLOSED');
   }
 
-  // ── LOOP ──
-  function loop(){
-    update();
-    draw();
+  function togglePause(){
+    if(state==='running'){
+      state='paused';
+      titleEl.textContent='Paused';
+      copyEl.textContent='Press P or Resume to continue.';
+      startBtn.textContent='Resume';
+      overlay.classList.remove('hidden');
+      setStatus('PAUSED');
+    } else if(state==='paused'){
+      state='running';
+      overlay.classList.add('hidden');
+      setStatus('LIVE RANGE','hot');
+    }
+  }
+
+  function reload(){
+    if(state!=='running'||reloading||ammo===6) return;
+    reloading=true;
+    reloadUntil=performance.now()+900;
+    setStatus('RELOADING…','reload');
+  }
+
+  function finishReload(){
+    ammo=6;
+    reloading=false;
+    setStatus('LIVE RANGE','hot');
+    updateHud();
+  }
+
+  function spawnTarget(){
+    const rare=Math.random()<0.06;
+    const pool=rare?TARGETS.filter(t=>t.rare):TARGETS.filter(t=>!t.rare);
+    const tpl=pool[Math.floor(Math.random()*pool.length)];
+    const fromRight=Math.random()>.35;
+    const lane=Math.floor(rand(0,4));
+    const baseY=[125,225,325,425][lane]+rand(-18,18);
+    const speed=rand(tpl.speed[0],tpl.speed[1])*(1+(60-timeLeft)*0.006);
+    targets.push({
+      ...tpl,
+      x:fromRight?W+tpl.r:-tpl.r,
+      y:baseY,
+      baseY,
+      vx:fromRight?-speed:speed,
+      t:rand(0,100),
+      hpNow:tpl.hp,
+      wobble:rand(6,22),
+      wobbleSpeed:rand(.02,.055),
+      scale:rand(.88,1.14)
+    });
+  }
+
+  function shoot(x,y){
+    if(state!=='running'||reloading) return;
+    if(ammo<=0){reload();return}
+    ammo--;
+    hitMarks.push({x,y,life:12,hit:false});
+    let hitIndex=-1;
+    for(let i=targets.length-1;i>=0;i--){
+      const t=targets[i];
+      const d=Math.hypot(x-t.x,y-t.y);
+      if(d<t.r*t.scale+10){hitIndex=i;break}
+    }
+
+    if(hitIndex>=0){
+      const t=targets[hitIndex];
+      t.hpNow--;
+      hitMarks[hitMarks.length-1].hit=true;
+      spawnParticles(t.x,t.y,t.color,10);
+      if(t.hpNow<=0){
+        streak++;
+        combo=Math.min(5,1+Math.floor(streak/3));
+        const gain=t.points*combo;
+        score+=gain;
+        floatText(t.x,t.y-20,'+'+gain,t.color);
+        targets.splice(hitIndex,1);
+      }
+    } else {
+      streak=0;
+      combo=1;
+    }
+
+    if(ammo===0) setTimeout(reload,120);
+    updateHud();
+  }
+
+  function spawnParticles(x,y,color,count){
+    for(let i=0;i<count;i++){
+      particles.push({x,y,vx:rand(-4,4),vy:rand(-4,4),life:rand(18,32),color,r:rand(1.5,4)});
+    }
+  }
+
+  function floatText(x,y,text,color){
+    particles.push({text,x,y,vx:0,vy:-1.2,life:48,color,r:0});
+  }
+
+  function update(dt){
+    if(state!=='running') return;
+    frame+=dt;
+    if(reloading&&performance.now()>=reloadUntil) finishReload();
+
+    spawnTimer+=dt;
+    if(spawnTimer>=nextSpawn){
+      spawnTimer=0;
+      if(targets.length<8) spawnTarget();
+      nextSpawn=Math.max(28,rand(42,70)-(60-timeLeft)*.25);
+    }
+
+    targets.forEach(t=>{
+      t.t+=dt;
+      t.x+=t.vx*dt;
+      t.y=t.baseY+Math.sin(t.t*t.wobbleSpeed)*t.wobble;
+    });
+
+    const escaped=targets.filter(t=>t.x<-80||t.x>W+80).length;
+    if(escaped){
+      streak=0;combo=1;
+    }
+    targets=targets.filter(t=>t.x>=-80&&t.x<=W+80);
+
+    particles.forEach(p=>{
+      p.x+=p.vx*dt;
+      p.y+=p.vy*dt;
+      p.life-=dt;
+    });
+    particles=particles.filter(p=>p.life>0);
+
+    hitMarks.forEach(m=>m.life-=dt);
+    hitMarks=hitMarks.filter(m=>m.life>0);
+  }
+
+  function drawBackground(){
+    const g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#07111e');
+    g.addColorStop(.58,'#0a1320');
+    g.addColorStop(1,'#09101a');
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,W,H);
+
+    ctx.strokeStyle='rgba(77,105,150,.12)';
+    ctx.lineWidth=1;
+    for(let x=0;x<W;x+=55){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+    for(let y=0;y<H;y+=55){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+
+    ctx.fillStyle='rgba(14,27,45,.95)';
+    for(let x=0;x<W;x+=90){
+      const h=70+(x*17)%110;
+      ctx.fillRect(x,H-h,70,h);
+      ctx.fillStyle='rgba(240,180,41,.08)';
+      for(let wy=H-h+16;wy<H-12;wy+=20){
+        ctx.fillRect(x+14,wy,5,7);ctx.fillRect(x+34,wy,5,7);ctx.fillRect(x+54,wy,5,7);
+      }
+      ctx.fillStyle='rgba(14,27,45,.95)';
+    }
+
+    ctx.fillStyle='rgba(240,180,41,.08)';
+    ctx.fillRect(0,H-48,W,48);
+    ctx.strokeStyle='rgba(240,180,41,.32)';
+    ctx.beginPath();ctx.moveTo(0,H-48);ctx.lineTo(W,H-48);ctx.stroke();
+
+    ctx.font='600 10px JetBrains Mono, monospace';
+    ctx.fillStyle='rgba(240,180,41,.22)';
+    for(let x=12;x<W;x+=190) ctx.fillText('RABBITHOLLOW // THREAT RANGE',x,H-20);
+  }
+
+  function drawTarget(t){
+    ctx.save();
+    ctx.translate(t.x,t.y);
+    ctx.scale(t.scale,t.scale);
+    ctx.shadowColor=t.color;
+    ctx.shadowBlur=16;
+
+    ctx.fillStyle=t.color+'22';
+    ctx.strokeStyle=t.color;
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.roundRect(-t.r*1.2,-t.r*.78,t.r*2.4,t.r*1.56,8);
+    ctx.fill();ctx.stroke();
+
+    ctx.shadowBlur=0;
+    ctx.fillStyle=t.color;
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.font='700 12px JetBrains Mono, monospace';
+
+    if(t.kind==='mail'){
+      ctx.strokeRect(-13,-9,26,18);
+      ctx.beginPath();ctx.moveTo(-13,-9);ctx.lineTo(0,2);ctx.lineTo(13,-9);ctx.stroke();
+    } else if(t.kind==='virus'){
+      ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.stroke();
+      for(let a=0;a<Math.PI*2;a+=Math.PI/4){
+        ctx.beginPath();ctx.moveTo(Math.cos(a)*11,Math.sin(a)*11);ctx.lineTo(Math.cos(a)*17,Math.sin(a)*17);ctx.stroke();
+      }
+    } else if(t.kind==='lock'){
+      ctx.strokeRect(-11,-3,22,17);
+      ctx.beginPath();ctx.arc(0,-3,8,Math.PI,0);ctx.stroke();
+    } else if(t.kind==='door'){
+      ctx.strokeRect(-10,-13,20,26);ctx.beginPath();ctx.arc(5,1,1.5,0,Math.PI*2);ctx.fill();
+    } else if(t.kind==='zero'){
+      ctx.font='800 16px JetBrains Mono, monospace';ctx.fillText('0D',0,0);
+    } else if(t.kind==='bot'){
+      ctx.strokeRect(-13,-10,26,20);ctx.beginPath();ctx.arc(-5,-2,2,0,Math.PI*2);ctx.arc(5,-2,2,0,Math.PI*2);ctx.fill();
+    } else {
+      ctx.font='800 17px JetBrains Mono, monospace';ctx.fillText('T',0,0);
+    }
+
+    ctx.font='700 9px JetBrains Mono, monospace';
+    ctx.fillText(t.name,0,t.r*.98);
+
+    if(t.hp>1){
+      const w=t.r*1.6;
+      ctx.fillStyle='#111827';ctx.fillRect(-w/2,-t.r-9,w,4);
+      ctx.fillStyle=t.color;ctx.fillRect(-w/2,-t.r-9,w*(t.hpNow/t.hp),4);
+    }
+    ctx.restore();
+  }
+
+  function drawParticles(){
+    particles.forEach(p=>{
+      const alpha=Math.min(1,p.life/18);
+      ctx.globalAlpha=alpha;
+      ctx.fillStyle=p.color;
+      if(p.text){
+        ctx.font='700 14px JetBrains Mono, monospace';
+        ctx.textAlign='center';
+        ctx.fillText(p.text,p.x,p.y);
+      } else {
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      }
+    });
+    ctx.globalAlpha=1;
+  }
+
+  function drawHitMarks(){
+    hitMarks.forEach(m=>{
+      ctx.save();
+      ctx.globalAlpha=m.life/12;
+      ctx.strokeStyle=m.hit?'#58d6a2':'#f87171';
+      ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(m.x,m.y,12+(12-m.life)*1.3,0,Math.PI*2);ctx.stroke();
+      ctx.restore();
+    });
+  }
+
+  function drawCrosshair(){
+    if(!mouse.inside) return;
+    ctx.save();
+    ctx.translate(mouse.x,mouse.y);
+    ctx.strokeStyle='rgba(255,255,255,.9)';
+    ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(0,0,14,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-23,0);ctx.lineTo(-7,0);ctx.moveTo(7,0);ctx.lineTo(23,0);ctx.moveTo(0,-23);ctx.lineTo(0,-7);ctx.moveTo(0,7);ctx.lineTo(0,23);ctx.stroke();
+    ctx.fillStyle=ammo?'#f0b429':'#f87171';
+    ctx.beginPath();ctx.arc(0,0,2.2,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  function loop(ts){
+    const dt=Math.min(2.2,(ts-lastTs)/16.666||1);
+    lastTs=ts;
+    update(dt);
+    drawBackground();
+    targets.forEach(drawTarget);
+    drawParticles();
+    drawHitMarks();
+    drawCrosshair();
     requestAnimationFrame(loop);
   }
 
-  function start(){
-    score=0; lives=3; timeLeft=60; level=1; frame=0;
-    spawnTimer=0; spawnRate=105;
-    attacks=[]; particles=[]; floaters=[];
-    player.x=80; player.y=GROUND; player.vy=0; player.onGround=true;
-    player.dir=1; player.animFrame=0; player.hit=0; player.shield=0;
-    state='running';
-    clearInterval(timerInterval);
-    timerInterval=setInterval(()=>{
-      if(state!=='running') return;
-      timeLeft--;
-      updateHUD();
-      if(timeLeft<=0){ state='dead'; clearInterval(timerInterval); if(score>hi)hi=score; updateHUD(); }
-    },1000);
-    updateHUD();
+  function pointerPosition(e){
+    const rect=canvas.getBoundingClientRect();
+    return {x:(e.clientX-rect.left)*(W/rect.width),y:(e.clientY-rect.top)*(H/rect.height)};
   }
 
-  loop();
-  return { start };
-})();
+  canvas.addEventListener('pointermove',e=>{
+    const p=pointerPosition(e);mouse.x=p.x;mouse.y=p.y;mouse.inside=true;
+  });
+  canvas.addEventListener('pointerleave',()=>{mouse.inside=false});
+  canvas.addEventListener('pointerdown',e=>{
+    const p=pointerPosition(e);mouse.x=p.x;mouse.y=p.y;mouse.inside=true;shoot(p.x,p.y);
+  });
 
+  document.addEventListener('keydown',e=>{
+    const el=document.activeElement;
+    if(el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.isContentEditable)) return;
+    if(e.key.toLowerCase()==='r'){e.preventDefault();reload()}
+    if(e.key.toLowerCase()==='p'){e.preventDefault();togglePause()}
+  });
+
+  reloadBtn.addEventListener('click',reload);
+  startBtn.addEventListener('click',()=>{
+    if(state==='paused'){togglePause()}else{startGame()}
+  });
+
+  updateHud();
+  requestAnimationFrame(loop);
 })();
 </script>
