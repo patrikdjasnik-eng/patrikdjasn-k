@@ -422,6 +422,423 @@ footer{
   #contact{padding:4rem 1.5rem}
   footer{flex-direction:column;gap:.35rem;text-align:center;padding:1rem}
 }
+
+/* Portfolio layout refresh */
+section:not(#hero){
+  padding:5rem clamp(1.5rem,4vw,4rem);
+}
+
+#about,
+#skills,
+#projects,
+#contact{
+  position:relative;
+}
+
+#about > *,
+#skills > *,
+#projects > *,
+#contact > *{
+  max-width:1440px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+#about .about-grid{
+  grid-template-columns:minmax(0,1.05fr) minmax(380px,.95fr);
+  gap:clamp(3rem,7vw,7rem);
+}
+
+#about .about-p{
+  max-width:62ch;
+}
+
+#about .stats{
+  align-self:center;
+}
+
+#about .stat{
+  min-height:118px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+#about .stat-n{
+  font-size:clamp(1.25rem,2vw,1.8rem);
+  letter-spacing:-.04em;
+}
+
+.projects-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:3rem;
+  margin-bottom:2.5rem;
+}
+
+.projects-head h2{
+  margin-bottom:0;
+}
+
+.projects-intro{
+  max-width:44ch;
+  color:var(--grey);
+  font-size:.9rem;
+  line-height:1.75;
+  font-weight:300;
+  padding-bottom:.35rem;
+}
+
+.featured-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);
+  grid-template-areas:
+    "agent local"
+    "security security";
+  gap:1rem;
+  margin-bottom:4rem;
+}
+
+.featured-card,
+.selected-card{
+  border:1px solid var(--bg4);
+  background:linear-gradient(145deg,rgba(19,23,40,.92),rgba(9,11,18,.98));
+  border-radius:8px;
+  position:relative;
+  overflow:hidden;
+}
+
+.featured-card{
+  padding:clamp(1.5rem,2.2vw,2.25rem);
+  min-height:320px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+.featured-card::before,
+.selected-card::before{
+  content:'';
+  position:absolute;
+  inset:0 auto auto 0;
+  width:100%;
+  height:1px;
+  background:linear-gradient(90deg,var(--amber),transparent 52%);
+  opacity:.75;
+}
+
+.featured-agent{grid-area:agent}
+.featured-local{grid-area:local}
+.featured-security{
+  grid-area:security;
+  min-height:250px;
+}
+
+.project-card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:1rem;
+  margin-bottom:2.75rem;
+}
+
+.project-kicker,
+.project-state,
+.project-subhead,
+.tool-row{
+  font-family:var(--mono);
+}
+
+.project-kicker{
+  font-size:.64rem;
+  color:var(--grey);
+  letter-spacing:.12em;
+}
+
+.project-state{
+  font-size:.6rem;
+  letter-spacing:.08em;
+  border:1px solid var(--bg5);
+  border-radius:999px;
+  padding:.3rem .55rem;
+  white-space:nowrap;
+}
+
+.state-active,
+.state-live{
+  color:var(--green);
+  border-color:rgba(62,207,142,.28);
+  background:rgba(62,207,142,.07);
+}
+
+.state-build{
+  color:var(--amber);
+  border-color:rgba(240,180,41,.28);
+  background:rgba(240,180,41,.07);
+}
+
+.featured-card h3,
+.selected-card h3{
+  font-family:var(--mono);
+  color:var(--white);
+  letter-spacing:-.025em;
+}
+
+.featured-card h3{
+  font-size:clamp(1.25rem,2.2vw,2rem);
+  margin-bottom:1rem;
+}
+
+.selected-card h3{
+  font-size:1.05rem;
+  margin-bottom:.8rem;
+}
+
+.featured-card p,
+.selected-card p{
+  color:var(--grey);
+  line-height:1.75;
+  font-weight:300;
+}
+
+.featured-card p{
+  max-width:64ch;
+  font-size:.92rem;
+}
+
+.selected-card p{
+  font-size:.84rem;
+  margin-bottom:1.5rem;
+  max-width:58ch;
+}
+
+.project-card-bottom{
+  margin-top:2.5rem;
+}
+
+.feature-security-copy{
+  display:grid;
+  grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);
+  gap:4rem;
+  align-items:end;
+}
+
+.feature-security-copy .project-card-bottom{
+  margin-top:0;
+}
+
+.project-tech{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.4rem;
+}
+
+.project-tech span{
+  font-family:var(--mono);
+  font-size:.62rem;
+  color:var(--grey);
+  border:1px solid var(--bg5);
+  background:rgba(19,23,40,.75);
+  border-radius:3px;
+  padding:.24rem .52rem;
+}
+
+.project-actions{
+  display:flex;
+  gap:1rem;
+  margin-top:1.25rem;
+}
+
+.project-actions a{
+  font-family:var(--mono);
+  font-size:.7rem;
+  color:var(--amber);
+  text-decoration:none;
+}
+
+.project-actions a:hover{
+  color:var(--amber2);
+}
+
+.project-subhead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1.5rem;
+  padding-bottom:.8rem;
+  margin-bottom:1rem;
+  border-bottom:1px solid var(--bg4);
+  color:var(--white);
+  font-size:.72rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+.project-subhead-note{
+  color:var(--grey2);
+  font-size:.62rem;
+  font-weight:400;
+  text-transform:none;
+  letter-spacing:.03em;
+}
+
+.selected-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1rem;
+}
+
+.selected-card{
+  min-height:245px;
+  padding:1.6rem;
+  display:flex;
+  flex-direction:column;
+}
+
+.selected-card .project-card-top{
+  margin-bottom:1.5rem;
+}
+
+.selected-card .project-tech{
+  margin-top:auto;
+}
+
+.selected-card .project-actions{
+  margin-top:1rem;
+}
+
+.tools-heading{
+  margin-top:4rem;
+}
+
+.tool-list{
+  border-top:1px solid var(--bg4);
+}
+
+.tool-row{
+  display:grid;
+  grid-template-columns:minmax(220px,1.2fr) .8fr 1fr auto;
+  gap:1rem;
+  align-items:center;
+  padding:1rem .25rem;
+  border-bottom:1px solid var(--bg4);
+  text-decoration:none;
+  transition:background .18s ease,padding .18s ease;
+}
+
+a.tool-row:hover{
+  background:rgba(19,23,40,.55);
+  padding-left:.75rem;
+  padding-right:.75rem;
+}
+
+.tool-name{
+  color:var(--white);
+  font-size:.76rem;
+  font-weight:600;
+}
+
+.tool-kind,
+.tool-stack,
+.tool-link{
+  font-size:.66rem;
+}
+
+.tool-kind,
+.tool-stack{
+  color:var(--grey);
+}
+
+.tool-link{
+  color:var(--amber);
+}
+
+.tool-link.muted{
+  color:var(--grey2);
+}
+
+#skills{
+  padding-top:4.5rem;
+  padding-bottom:4.5rem;
+}
+
+#skills h2{
+  margin-bottom:2.5rem;
+}
+
+#skills .skills-grid{
+  gap:1rem;
+}
+
+#skills .skills-grid > div{
+  padding:1.25rem;
+  border:1px solid var(--bg4);
+  border-radius:6px;
+  background:rgba(19,23,40,.45);
+}
+
+#contact{
+  padding-top:5.5rem;
+  padding-bottom:5.5rem;
+}
+
+@media(max-width:980px){
+  #about .about-grid{
+    grid-template-columns:1fr;
+  }
+
+  .featured-grid{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "agent"
+      "local"
+      "security";
+  }
+
+  .feature-security-copy{
+    grid-template-columns:1fr;
+    gap:1.5rem;
+  }
+
+  .selected-grid{
+    grid-template-columns:1fr;
+  }
+
+  .tool-row{
+    grid-template-columns:1fr auto;
+  }
+
+  .tool-kind,
+  .tool-stack{
+    display:none;
+  }
+}
+
+@media(max-width:700px){
+  .projects-head{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:1rem;
+  }
+
+  .projects-intro{
+    max-width:none;
+  }
+
+  .featured-card{
+    min-height:280px;
+  }
+
+  .project-card-top{
+    align-items:flex-start;
+  }
+
+  .project-subhead-note{
+    display:none;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -437,7 +854,6 @@ footer{
     <li><a href="#about">about</a></li>
     <li><a href="#projects">projects</a></li>
     <li><a href="#skills">skills</a></li>
-    <li><a href="#experience">experience</a></li>
     <li><a href="#contact">contact</a></li>
   </ul>
   <div class="nav-status">
@@ -452,15 +868,16 @@ footer{
 
     <!-- LEFT -->
     <div class="hero-left">
-      <div class="hero-eyebrow">Security Workspace</div>
+      <div class="hero-eyebrow">Independent Developer · RabbitHollow</div>
       <div class="hero-name">Patrik<br><span>Djasník</span></div>
-      <div class="hero-title">Logistics Expert &amp; AI-Augmented Developer</div>
+      <div class="hero-title">Full-Stack Internal Apps Developer</div>
       <div class="hero-tags">
-        <span class="htag hi">AI-augmented dev</span>
-        <span class="htag">15yr logistics</span>
-        <span class="htag">security research</span>
+        <span class="htag hi">AI agents</span>
         <span class="htag">local LLM</span>
-        <span class="htag">self-taught</span>
+        <span class="htag">React / TypeScript</span>
+        <span class="htag">FastAPI</span>
+        <span class="htag">automation</span>
+        <span class="htag">offline-first</span>
       </div>
       <div class="hero-cta">
         <a href="#projects" class="btn btn-a">explore projects</a>
@@ -503,132 +920,167 @@ footer{
   <div class="about-grid">
     <div>
       <div class="s-label">about</div>
-      <h2>Domain expert<br>who ships.</h2>
-      <p class="about-p">15 years inside warehouses — DHL, Ahold, PPL, Zásilkovna. That time taught me exactly where logistics software fails. So I learned to build.</p>
-      <p class="about-p">Self-taught across the full stack — from single-file HTML PWAs to <strong>React/FastAPI backends</strong> to <strong>local LLM inference</strong> on a GTX 1070 Ti. I build under the <strong>RabbitHollow</strong> brand.</p>
-      <p class="about-p">My edge: I'm not a developer who learned logistics. I'm a logistics expert who learned to code — and I use AI as a technical co-pilot, not a shortcut.</p>
+      <h2>I build systems<br>that remove busywork.</h2>
+      <p class="about-p">I design and build <strong>internal applications, AI agents and automation tools</strong> from idea to working product.</p>
+      <p class="about-p">My projects range from <strong>React / TypeScript and FastAPI</strong> applications to <strong>local AI inference</strong> with llama.cpp, GGUF models and modular agent runtimes.</p>
+      <p class="about-p">I focus on practical software: fewer repetitive steps, fewer open tools, cleaner workflows and systems that can keep working locally when cloud services are not the right fit.</p>
     </div>
     <div class="stats">
-      <div class="stat"><div class="stat-n">15yr</div><div class="stat-l">logistics operations</div></div>
-      <div class="stat"><div class="stat-n">10+</div><div class="stat-l">shipped projects</div></div>
-      <div class="stat"><div class="stat-n">41</div><div class="stat-l">AI tools in Cipísek</div></div>
-      <div class="stat"><div class="stat-n">v7</div><div class="stat-l">RabbitHollow Knight engine</div></div>
+      <div class="stat"><div class="stat-n">10+</div><div class="stat-l">projects built and shipped</div></div>
+      <div class="stat"><div class="stat-n">AI</div><div class="stat-l">agent workflows and tool use</div></div>
+      <div class="stat"><div class="stat-n">LOCAL</div><div class="stat-l">LLM inference with llama.cpp</div></div>
+      <div class="stat"><div class="stat-n">PWA</div><div class="stat-l">offline-first web applications</div></div>
     </div>
   </div>
 </section>
 
 <!-- PROJECTS -->
 <section id="projects">
-  <div class="s-label">projects</div>
-  <h2>What I build</h2>
-  <div class="proj-grid">
-
-    <div class="proj-card span2">
-      <div class="proj-type">SECURITY PLATFORM</div>
-      <div class="proj-status ps-dev">MVP in development</div>
-      <div class="proj-name">RabbitHollow — Deception Intelligence Platform</div>
-      <div class="proj-desc">Cybersecurity platform for monitoring honeypots and deception infrastructure. IOC intelligence, attacker profiling, incident ticketing, RBAC, audit logging, AI-assisted threat hunting. Deny-by-default egress, dual-control approval for sensitive AI ops.</div>
-      <div class="proj-stack">
-        <span class="ptag">React</span><span class="ptag">TypeScript</span><span class="ptag">FastAPI</span>
-        <span class="ptag">PostgreSQL</span><span class="ptag">RBAC</span><span class="ptag">AI-assisted</span>
-      </div>
+  <div class="projects-head">
+    <div>
+      <div class="s-label">selected work</div>
+      <h2>Products, agents<br>and internal tools.</h2>
     </div>
+    <p class="projects-intro">A focused selection of AI systems, internal applications, local-first software and developer tools.</p>
+  </div>
 
-    <div class="proj-card">
-      <div class="proj-type">LOCAL LLM · OFFLINE</div>
-      <div class="proj-status ps-dev">Active development</div>
-      <div class="proj-name">RH — Offline-First AI Dev Studio</div>
-      <div class="proj-desc">Multiplatform IDE with local AI inference, GGUF models, AI agents, terminal, editor, Git. Works completely offline. Cloud sync when available.</div>
-      <div class="proj-stack">
-        <span class="ptag">Local LLM</span><span class="ptag">GGUF</span><span class="ptag">llama.cpp</span><span class="ptag">Offline-first</span>
+  <div class="featured-grid">
+    <article class="featured-card featured-agent">
+      <div class="project-card-top">
+        <span class="project-kicker">AI AGENT · AUTOMATION</span>
+        <span class="project-state state-active">● ACTIVE</span>
       </div>
-    </div>
-
-    <div class="proj-card">
-      <div class="proj-type">AI AGENT · WMS</div>
-      <div class="proj-status ps-live">development</div>
-      <div class="proj-name">Cipísek — WMS AI Agent</div>
-      <div class="proj-desc">AI agent for 5  distribution centers. 41 tools covering warehouse ops, sparklines, alert panel, PWA. Own security audit — prompt injection testing.</div>
-      <div class="proj-stack">
-        <span class="ptag">Gemini API</span><span class="ptag">HTML</span><span class="ptag">PWA</span><span class="ptag">Vercel</span>
+      <div>
+        <h3>RabbitHollow AI Agent</h3>
+        <p>Local-first agent runtime built for longer multi-step workflows, tool execution and desktop automation. Designed around explicit approvals, provider routing and recoverable task chains.</p>
       </div>
-    </div>
-
-    <div class="proj-card">
-      <div class="proj-type">ANDROID · PYTHON</div>
-      <div class="proj-status ps-dev">development</div>
-      <div class="proj-name">RabbitHollow Threads</div>
-      <div class="proj-desc">Offline-first Android app for conversation management with local AI inference. SQLite, Buildozer build. Kivy prototype functional, offline AI layer in progress.</div>
-      <div class="proj-stack">
-        <span class="ptag">Python</span><span class="ptag">Kivy</span><span class="ptag">Android</span><span class="ptag">llama.cpp</span>
+      <div class="project-card-bottom">
+        <div class="project-tech">
+          <span>Python</span><span>FastAPI</span><span>Local LLM</span><span>Tool use</span>
+        </div>
+        <div class="project-actions">
+          <a href="https://github.com/patrikdjasnik-eng/AI-agent" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </div>
       </div>
-    </div>
+    </article>
 
-    <div class="proj-card">
-      <div class="proj-type">GAME DEV · NO LIBS</div>
-      <div class="proj-status ps-live">online · v7.0</div>
-      <div class="proj-name">RabbitHollow Knight</div>
-      <div class="proj-desc">Custom retro platformer engine from scratch — no libraries. Game loop, Canvas renderer, sprite system, physics, collision, enemies, achievements. Campaign (8 levels) + Endless mode. Mobile controls.</div>
-      <div class="proj-stack">
-        <span class="ptag">HTML5</span><span class="ptag">Canvas API</span><span class="ptag">JavaScript</span>
+    <article class="featured-card featured-local">
+      <div class="project-card-top">
+        <span class="project-kicker">LOCAL AI · OFFLINE</span>
+        <span class="project-state state-build">● BUILDING</span>
       </div>
-      <a href="https://rabbit-hollow-knight.vercel.app/" target="_blank" class="proj-link">play ↗</a>
-    </div>
-
-    <div class="proj-card">
-      <div class="proj-type">PWA · WAREHOUSE</div>
-      <div class="proj-status ps-live">online· v18</div>
-      <div class="proj-name">WMS Lookup</div>
-      <div class="proj-desc">Progressive web app for warehouse management. Auth, scanner/tracking/ping modules, supervisor dashboard with PDF reports, CZ/UA multilingual support.</div>
-      <div class="proj-stack">
-        <span class="ptag">HTML</span><span class="ptag">JavaScript</span><span class="ptag">PWA</span>
-         <a href="https://erp-zjus.vercel.app/" target="_blank" class="proj-link">view live ↗</a>
+      <div>
+        <h3>Offline AI Runtime</h3>
+        <p>Modular local inference stack using GGUF models and llama.cpp. Built around desktop and mobile use, private execution and cloud-optional workflows.</p>
       </div>
-    </div>
-
-    <div class="proj-card">
-      <div class="proj-type">COMPLIANCE · EU AI ACT</div>
-      <div class="proj-status ps-wip">development</div>
-      <div class="proj-name">REGISTRA</div>
-      <div class="proj-desc">EU AI Act compliance platform — AI system registry, risk classification, documentation management, compliance calendar. Next.js + Postgres production planned.</div>
-      <div class="proj-stack">
-        <span class="ptag">HTML</span><span class="ptag">Next.js</span><span class="ptag">PostgreSQL</span>
+      <div class="project-card-bottom">
+        <div class="project-tech">
+          <span>llama.cpp</span><span>GGUF</span><span>Ollama</span><span>Offline-first</span>
+        </div>
       </div>
-    </div>
+    </article>
 
-    <div class="proj-card">
-      <div class="proj-type">CLIENT WORK</div>
-      <div class="proj-status ps-live">development</div>
-      <div class="proj-name">charmieWeb</div>
-      <div class="proj-desc">Site for Czech Twitch streamer Charmiie . Stream schedule, brand partnerships (unactual), social links, live embed.</div>
-      <div class="proj-stack">
-        <span class="ptag">HTML</span><span class="ptag">CSS</span><span class="ptag">JavaScript</span><span class="ptag">Vercel</span>
+    <article class="featured-card featured-security">
+      <div class="project-card-top">
+        <span class="project-kicker">SECURITY · DECEPTION</span>
+        <span class="project-state state-build">● BUILDING</span>
       </div>
-      <a href="https://charmiejpg.vercel.app/" target="_blank" class="proj-link">view live ↗</a>
-    </div>
-
-    <div class="proj-card">
-      <div class="proj-type">DEV TOOLS · CLI</div>
-      <div class="proj-status ps-wip">live</div>
-      <div class="proj-name">Terminal Cheatsheet</div>
-      <div class="proj-desc">Interactive offline CLI reference — Linux, Git, Docker, Kubernetes, SSH, Termux, Node, Python, networking. Search, filter, terminal simulator. Single-file, zero deps, mobile-ready.</div>
-      <div class="proj-stack">
-        <span class="ptag">HTML</span><span class="ptag">JavaScript</span><span class="ptag">Offline-first</span>
+      <div class="feature-security-copy">
+        <div>
+          <h3>Deception Intelligence</h3>
+          <p>Security tooling for deception infrastructure, IOC analysis, incident workflows and AI-assisted investigation with controlled actions and auditability.</p>
+        </div>
+        <div class="project-card-bottom">
+          <div class="project-tech">
+            <span>React</span><span>TypeScript</span><span>FastAPI</span><span>PostgreSQL</span>
+          </div>
+          <div class="project-actions">
+            <a href="https://github.com/patrikdjasnik-eng/deception-analyzer" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          </div>
+        </div>
       </div>
-      <a href="https://command-list-eta.vercel.app/" target="_blank" class="proj-link">view live ↗</a>
-    </div>
+    </article>
+  </div>
 
-    <div class="proj-card">
-      <div class="proj-type">TRAINING TOOL · ERP</div>
-      <div class="proj-status ps-live">live</div>
-      <div class="proj-name">SAP ERP Trenažér</div>
-      <div class="proj-desc">Interactive trainer covering 69 transaction codes across SAP MM/WM/SD/FI/HR modules. Built from real operational experience for onboarding warehouse staff.</div>
-      <div class="proj-stack">
-        <span class="ptag">HTML</span><span class="ptag">JavaScript</span>
-        <a href="https://erp-brown-eight.vercel.app/" target="_blank" class="proj-link">view live ↗</a>
+  <div class="project-subhead">
+    <span>Selected projects</span>
+    <span class="project-subhead-note">working products, prototypes and client work</span>
+  </div>
+
+  <div class="selected-grid">
+    <article class="selected-card">
+      <div class="project-card-top">
+        <span class="project-kicker">COMPLIANCE · AI</span>
+        <span class="project-state state-build">BUILDING</span>
       </div>
-    </div>
+      <h3>REGISTRA</h3>
+      <p>AI system registry and compliance workspace for risk classification, documentation and operational tracking.</p>
+      <div class="project-tech"><span>Next.js</span><span>PostgreSQL</span><span>Prisma</span></div>
+    </article>
 
+    <article class="selected-card">
+      <div class="project-card-top">
+        <span class="project-kicker">GAME ENGINE</span>
+        <span class="project-state state-live">LIVE</span>
+      </div>
+      <h3>RabbitHollow Knight</h3>
+      <p>Custom browser platformer engine built without game libraries, including physics, collision, enemies, levels and mobile controls.</p>
+      <div class="project-tech"><span>JavaScript</span><span>Canvas API</span><span>HTML5</span></div>
+      <div class="project-actions"><a href="https://rabbit-hollow-knight.vercel.app/" target="_blank" rel="noopener noreferrer">Play ↗</a></div>
+    </article>
+
+    <article class="selected-card">
+      <div class="project-card-top">
+        <span class="project-kicker">AI ASSISTANT · PWA</span>
+        <span class="project-state state-build">DEVELOPMENT</span>
+      </div>
+      <h3>Cipísek</h3>
+      <p>Task-focused AI assistant with operational tools, dashboards, alerts and prompt-injection testing inside a lightweight PWA.</p>
+      <div class="project-tech"><span>Gemini API</span><span>PWA</span><span>JavaScript</span></div>
+    </article>
+
+    <article class="selected-card">
+      <div class="project-card-top">
+        <span class="project-kicker">CLIENT WORK</span>
+        <span class="project-state state-live">LIVE</span>
+      </div>
+      <h3>charmieWeb</h3>
+      <p>Responsive site for a Czech streamer with schedule, social links, brand content and live integrations.</p>
+      <div class="project-tech"><span>HTML</span><span>CSS</span><span>JavaScript</span></div>
+      <div class="project-actions"><a href="https://charmiejpg.vercel.app/" target="_blank" rel="noopener noreferrer">View live ↗</a></div>
+    </article>
+  </div>
+
+  <div class="project-subhead tools-heading">
+    <span>Experiments &amp; tools</span>
+    <span class="project-subhead-note">smaller builds worth exploring</span>
+  </div>
+
+  <div class="tool-list">
+    <a class="tool-row" href="https://command-list-eta.vercel.app/" target="_blank" rel="noopener noreferrer">
+      <span class="tool-name">Terminal Cheatsheet</span>
+      <span class="tool-kind">Developer tool</span>
+      <span class="tool-stack">HTML · JS · Offline</span>
+      <span class="tool-link">Live ↗</span>
+    </a>
+    <a class="tool-row" href="https://erp-zjus.vercel.app/" target="_blank" rel="noopener noreferrer">
+      <span class="tool-name">WMS Lookup</span>
+      <span class="tool-kind">Internal app</span>
+      <span class="tool-stack">PWA · JavaScript</span>
+      <span class="tool-link">Live ↗</span>
+    </a>
+    <a class="tool-row" href="https://erp-brown-eight.vercel.app/" target="_blank" rel="noopener noreferrer">
+      <span class="tool-name">SAP ERP Trainer</span>
+      <span class="tool-kind">Training tool</span>
+      <span class="tool-stack">HTML · JavaScript</span>
+      <span class="tool-link">Live ↗</span>
+    </a>
+    <div class="tool-row">
+      <span class="tool-name">RabbitHollow Threads</span>
+      <span class="tool-kind">Mobile experiment</span>
+      <span class="tool-stack">Python · Kivy · llama.cpp</span>
+      <span class="tool-link muted">Prototype</span>
+    </div>
   </div>
 </section>
 
@@ -684,58 +1136,8 @@ footer{
         <li>VS Code</li>
         <li>PowerShell / Termux</li>
         <li>Buildozer (Android)</li>
-        <li>SAP ERP / WMS</li>
+        <li>WebSockets / Service Workers</li>
       </ul>
-    </div>
-  </div>
-</section>
-
-<!-- EXPERIENCE -->
-<section id="experience">
-  <div class="s-label">experience</div>
-  <h2>Work history</h2>
-  <div class="exp-list">
-    <div class="exp-item">
-      <div class="exp-date">May 2026</div>
-      <div>
-        <div class="exp-role">Administrative Worker / WMS Referent</div>
-        <div class="exp-co">HOPI S.R.O</div>
-        <ul class="exp-ul"><li>SAP/WMS operations, driver coordination and logistics flow management</li></ul>
-      </div>
-    </div>
-    <div class="exp-item">
-      <div class="exp-date">Mar – Apr 2026</div>
-      <div>
-        <div class="exp-role">Floor Supervisor (Halový mistr)</div>
-        <div class="exp-co">Zásilkovna (Packeta Group) · Prague</div>
-        <ul class="exp-ul">
-          <li>Managed shifts in a robotic depot with PackMan AGV systems</li>
-          <li>Coordinated cross-dock workflow with depot management</li>
-          <li>KPI management — throughput, error rate, productivity</li>
-        </ul>
-      </div>
-    </div>
-    <div class="exp-item">
-      <div class="exp-date">Aug 2023 – Mar 2026</div>
-      <div>
-        <div class="exp-role">Warehouse Operator — Voice Picking</div>
-        <div class="exp-co">Ahold (Albert) · Klecany</div>
-        <ul class="exp-ul">
-          <li>Order picking via voice navigation, VZV forklift operation</li>
-          <li>High-volume sustained performance in fast-paced DC</li>
-        </ul>
-      </div>
-    </div>
-    <div class="exp-item">
-      <div class="exp-date">2017 – 2023</div>
-      <div>
-        <div class="exp-role">Picker / Warehouse / Stock Manipulator</div>
-        <div class="exp-co">Elite CZ · Datart · PPL · Euromedia</div>
-        <ul class="exp-ul">
-          <li>Roles across picking, expedition, loading/unloading, stock management</li>
-          <li>Courier depot (PPL), retail logistics (Datart), publishing (Euromedia)</li>
-        </ul>
-      </div>
     </div>
   </div>
 </section>
@@ -744,7 +1146,7 @@ footer{
 <section id="contact">
   <div class="s-label">contact</div>
   <h2>Let's work together</h2>
-  <p class="ct-sub">Open to product engineer roles, WMS consulting, and AI tooling projects. Prague-based.</p>
+  <p class="ct-sub">Available for internal apps, AI agents, automation and custom product development. Prague-based, remote-friendly.</p>
   <div class="ct-links">
     <a href="mailto:patrikdjasnik@gmail.com" class="ct-a">✉ patrikdjasnik@gmail.com</a>
     <a href="tel:+420776608475" class="ct-a">☎ +420 776 608 475</a>
@@ -833,12 +1235,12 @@ const FS = {
   '~/about.md': { type:'file', content:[
     '# Patrik Djasník',
     '',
-    'Logistics Domain Expert & AI-Augmented Developer',
+    'Full-Stack Internal Apps Developer',
     'Prague, Czech Republic',
     '',
     '## Summary',
-    '15 years in logistics (DHL, Ahold, PPL, Zásilkovna).',
-    'Self-taught developer. Building under RabbitHollow brand.',
+    'Building internal apps, AI agents and local-first software.',
+    'Independent developer building under the RabbitHollow brand.',
     '',
     '## Approach',
     'AI-augmented development — human-in-the-loop engineering.',
@@ -849,7 +1251,7 @@ const FS = {
     'AI/LLM:   Gemini Claude llama.cpp GGUF Ollama prompt-engineering',
     'SECURITY: Kali ethical-hacking threat-hunting honeynet RBAC',
     'TOOLS:    Git Docker Vercel Postman VSCode PowerShell Termux',
-    'DOMAIN:   SAP-ERP WMS logistics cross-dock AGV PackMan',
+    'SYSTEMS:  internal-apps automation PWA WebSockets offline-first',
     'LANG:     CS(C2) EN(B1) SK(B2)',
   ]},
   '~/contact.md': { type:'file', content:[
@@ -1090,12 +1492,12 @@ function cmdTree(path, depth){
 function cmdWhoami(){
   lines([
     {t:'out-h',v:'Patrik Djasník'},
-    {t:'out',v:'Role:    Logistics Domain Expert & AI-Augmented Developer'},
+    {t:'out',v:'Role:    Full-Stack Internal Apps Developer'},
     {t:'out',v:'Based:   Prague, Czech Republic'},
     {t:'out',v:'Brand:   RabbitHollow'},
-    {t:'out',v:'Focus:   AI tools · Security research · Warehouse tech'},
+    {t:'out',v:'Focus:   AI agents · Internal apps · Local LLM · Automation'},
     {t:'blank'},
-    {t:'out',v:'15 years in logistics. Self-taught developer.'},
+    {t:'out',v:'Independent developer building practical tools under RabbitHollow.'},
     {t:'out',v:'Building tools that solve problems Excel can\'t show.'},
   ]);
 }
@@ -1127,7 +1529,7 @@ function cmdStack(){
     {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">AI/LLM:</span><span class="t-out">Gemini Claude llama.cpp GGUF Ollama prompt-engineering agent-arch</span></div>`},
     {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">Security:</span><span class="t-out">Kali ethical-hacking threat-hunting honeynet breadcrumbing RBAC Wireshark Ghidra</span></div>`},
     {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">Tools:</span><span class="t-out">Git Docker Vercel Render Postman VSCode PowerShell Termux Buildozer</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">Domain:</span><span class="t-out">SAP-ERP WMS logistics cross-dock AGV PackMan 15yr-ops</span></div>`},
+    {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">Systems:</span><span class="t-out">internal-apps automation PWA WebSockets offline-first</span></div>`},
     {t:'raw',v:`<div class="t-line"><span class="t-highlight" style="min-width:90px">Languages:</span><span class="t-out">Czech(C2) English(B1) Slovak(B2)</span></div>`},
   ]);
 }
@@ -1171,7 +1573,7 @@ function cmdNeofetch(){
     {t:'raw',v:`<div class="t-line"><span class="t-amber" style="color:var(--amber)">    ██</span><span class="t-comment">████████</span><span class="t-amber" style="color:var(--amber)">██</span><span class="t-grey" style="margin-left:1.5rem">OS:</span><span class="t-out"> RabbitHollow v2.6.0</span></div>`},
     {t:'raw',v:`<div class="t-line"><span class="t-comment">    ████████████</span><span class="t-grey" style="margin-left:1.5rem">Host:</span><span class="t-out"> Prague, CZ</span></div>`},
     {t:'raw',v:`<div class="t-line"><span class="t-comment">      ████████</span><span class="t-grey" style="margin-left:1.5rem">Brand:</span><span class="t-out"> RabbitHollow</span></div>`},
-    {t:'raw',v:`<div class="t-line"><span class="t-comment">        ████</span><span class="t-grey" style="margin-left:1.5rem">Role:</span><span class="t-out"> Logistics Expert & AI Dev</span></div>`},
+    {t:'raw',v:`<div class="t-line"><span class="t-comment">        ████</span><span class="t-grey" style="margin-left:1.5rem">Role:</span><span class="t-out"> Full-Stack Internal Apps Dev</span></div>`},
     {t:'raw',v:`<div class="t-line"><span class="t-grey" style="margin-left:5.5rem">GPU:</span><span class="t-out"> GTX 1070 Ti (CUDA, local LLM)</span></div>`},
     {t:'raw',v:`<div class="t-line"><span class="t-grey" style="margin-left:5.5rem">RAM:</span><span class="t-out"> 16GB</span></div>`},
     {t:'raw',v:`<div class="t-line"><span class="t-grey" style="margin-left:5.5rem">Shell:</span><span class="t-out"> PowerShell / Termux / WSL</span></div>`},
