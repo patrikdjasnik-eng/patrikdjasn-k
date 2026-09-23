@@ -1991,7 +1991,7 @@ function switchTab(tab,button){
       </div>
     </div>
   `;
-  document.querySelector('footer').before(section);
+  document.body.appendChild(section);
 
   const style=document.createElement('style');
   style.textContent=`
